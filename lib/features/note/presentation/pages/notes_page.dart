@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:rchive/features/home/presentation/pages/new_note_page.dart';
+import 'package:rchive/features/note/presentation/pages/new_note_page.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class NotesPage extends StatelessWidget {
+  const NotesPage({super.key});
 
   @override
   Widget build(BuildContext context) {

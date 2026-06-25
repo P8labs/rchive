@@ -41,6 +41,7 @@ dependencies:
   get_it: ^9.2.1
   markdown_editor_plus:
     path: packages/markdown_editor_plus
+  shared_preferences: ^2.5.5
 
 dev_dependencies:
   flutter_test:
