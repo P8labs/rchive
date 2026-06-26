@@ -54,7 +54,7 @@ class _NewNotePageState extends State<NewNotePage> {
             expands: false,
             decoration: InputDecoration(
               hintText: 'Enter your text here',
-              border: .none,
+              border: InputBorder.none,
             ),
           ),
         ),

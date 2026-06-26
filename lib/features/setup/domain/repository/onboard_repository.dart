@@ -8,4 +8,5 @@ abstract interface class OnboardRepository {
     required String path,
   });
   Future<Either<Failure, Vault>> onboardExistingVault({required String path});
+  Future<Either<Failure, Vault>> currentVault();
 }

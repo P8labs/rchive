@@ -5,6 +5,7 @@ enum PreferenceKeys { defaultVaultPath }
 abstract interface class SharedConfig {
   Future<void> setDefaultVaultPath(String path);
   Future<void> removeDefaultVaultPath();
+  Future<String?> defaultVaultPath();
 }
 
 class SharedConfigImpl implements SharedConfig {
@@ -19,5 +20,10 @@ class SharedConfigImpl implements SharedConfig {
   @override
   Future<void> removeDefaultVaultPath() async {
     return await prefs.remove(PreferenceKeys.defaultVaultPath.name);
+  }
+
+  @override
+  Future<String?> defaultVaultPath() async {
+    return await prefs.getString(PreferenceKeys.defaultVaultPath.name);
   }
 }

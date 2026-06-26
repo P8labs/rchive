@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:rchive/core/comman/cubits/cubit/app_user_cubit.dart';
+import 'package:rchive/core/comman/state/app_cubit.dart';
+import 'package:rchive/core/pages/error_page.dart';
+import 'package:rchive/core/pages/splash_page.dart';
 
 import 'package:rchive/core/theme/theme.dart';
+import 'package:rchive/features/note/presentation/bloc/note_bloc.dart';
 import 'package:rchive/features/note/presentation/pages/notes_page.dart';
-import 'package:rchive/features/setup/presentation/pages/onboard_page.dart';
+import 'package:rchive/features/vault/presentation/bloc/vault_bloc.dart';
+import 'package:rchive/features/vault/presentation/pages/vault_selection_page.dart';
 import 'package:rchive/init_dependencies.dart';
 
 void main() async {
@@ -12,35 +16,40 @@ void main() async {
   await initDependencies();
   runApp(
     MultiBlocProvider(
-      providers: [BlocProvider(create: (_) => serviceLocator<AppUserCubit>())],
+      providers: [
+        BlocProvider(create: (_) => serviceLocator<AppCubit>()..initialize()),
+        BlocProvider(create: (_) => serviceLocator<VaultBloc>()),
+        BlocProvider(create: (_) => serviceLocator<NoteBloc>()),
+      ],
       child: const RchiveApp(),
     ),
   );
 }
 
-class RchiveApp extends StatefulWidget {
+class RchiveApp extends StatelessWidget {
   const RchiveApp({super.key});
 
   @override
-  State<RchiveApp> createState() => _RchiveAppState();
-}
-
-class _RchiveAppState extends State<RchiveApp> {
-  @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Rchive',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
-      home: BlocSelector<AppUserCubit, AppUserState, bool>(
-        selector: (state) {
-          return state is AppUserOnboarded;
-        },
-        builder: (context, isOnboarded) {
-          if (isOnboarded) {
-            return NotesPage();
+      home: BlocBuilder<AppCubit, AppState>(
+        builder: (context, state) {
+          switch (state) {
+            case AppInitializing():
+              return const SplashPage();
+
+            case AppReady():
+              if (state.currentVault == null) {
+                return const VaultSelectionPage();
+              }
+
+              return const NotesPage();
+
+            case AppFailure():
+              return ErrorPage(message: state.message);
           }
-          return OnboardPage();
         },
       ),
     );

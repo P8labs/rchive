@@ -1,6 +1,10 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rchive/core/comman/utils/show_snackbar.dart';
+import 'package:rchive/core/comman/widgets/loader.dart';
 import 'package:rchive/core/theme/app_pallet.dart';
+import 'package:rchive/features/setup/presentation/bloc/onboard_bloc.dart';
 
 class OnboardPage extends StatefulWidget {
   const OnboardPage({super.key});
@@ -39,85 +43,117 @@ class _OnboardPageState extends State<OnboardPage> {
     return true;
   }
 
-  void onNewVault() {
-    // context.read();
+  void onNewVault() async {
+    final name = _vaultNameController.text.trim();
+    String? selectedDirectory = await FilePicker.getDirectoryPath();
+    if (!mounted || selectedDirectory == null) {
+      return;
+    }
+    context.read<OnboardBloc>().add(
+      OnboardOpenNewVault(vaultName: name, vaultPath: selectedDirectory),
+    );
   }
-  void onExistingVault() {}
+
+  void onExistingVault() async {
+    String? selectedDirectory = await FilePicker.getDirectoryPath();
+    if (!mounted || selectedDirectory == null) {
+      return;
+    }
+    context.read<OnboardBloc>().add(
+      OnboardOpenExistingVault(vaultPath: selectedDirectory),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    "Rchive",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 42, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    "Your private knowledge vault.",
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 48),
-                  TextField(
-                    onTapOutside: (event) {
-                      FocusManager.instance.primaryFocus?.unfocus();
-                    },
-                    controller: _vaultNameController,
-                    decoration: InputDecoration(
-                      errorText: _vaultNameController.text.isEmpty || isValid
-                          ? null
-                          : "Vault name must be 3-64 characters and cannot contain \\ / : * ? \" < > |",
-                      hintText: "Enter Vault Name",
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(12),
-                        ),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(12),
-                        ),
-                        borderSide: BorderSide(
-                          width: 1,
-                          color: AppPallete.accent,
+        child: BlocConsumer<OnboardBloc, OnboardState>(
+          listener: (context, state) {
+            if (state is OnboardFailure) {
+              showSnackBar(context, state.message);
+            }
+          },
+          builder: (context, state) {
+            if (state is OnboardLoading) {
+              return const Loader();
+            }
+            return Padding(
+              padding: const EdgeInsets.all(24),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text(
+                        "Rchive",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 42,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(
-                          bottom: Radius.circular(12),
+                      const SizedBox(height: 12),
+                      Text(
+                        "Your private knowledge vault.",
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 48),
+                      TextField(
+                        onTapOutside: (event) {
+                          FocusManager.instance.primaryFocus?.unfocus();
+                        },
+                        controller: _vaultNameController,
+                        decoration: InputDecoration(
+                          errorText:
+                              _vaultNameController.text.isEmpty || isValid
+                              ? null
+                              : "Vault name must be 3-64 characters and cannot contain \\ / : * ? \" < > |",
+                          hintText: "Enter Vault Name",
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(12),
+                            ),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(12),
+                            ),
+                            borderSide: BorderSide(
+                              width: 1,
+                              color: AppPallete.accent,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                    onPressed: isValid ? onNewVault : null,
-                    child: const Text("Create New Vault"),
-                  ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                              bottom: Radius.circular(12),
+                            ),
+                          ),
+                        ),
+                        onPressed: isValid ? onNewVault : null,
+                        child: const Text("Create New Vault"),
+                      ),
 
-                  const SizedBox(height: 12),
+                      const SizedBox(height: 12),
 
-                  OutlinedButton(
-                    onPressed: onExistingVault,
-                    child: const Text("Open Existing Vault"),
+                      OutlinedButton(
+                        onPressed: onExistingVault,
+                        child: const Text("Open Existing Vault"),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );

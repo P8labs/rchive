@@ -15,3 +15,7 @@ final class OnboardOpenExistingVault extends OnboardEvent {
 
   OnboardOpenExistingVault({required this.vaultPath});
 }
+
+final class IsOnboarded extends OnboardEvent {}
+
+final class DeactivateVault extends OnboardEvent {}
