@@ -1,9 +1,9 @@
 import 'package:drift/drift.dart';
 
-class ConfigTable extends Table {
-  TextColumn get key => text()();
-  TextColumn get value => text()();
+class AppConfigTable extends Table {
+  IntColumn get id => integer().withDefault(const Constant(1))();
+  TextColumn get defaultVaultId => text().nullable()();
 
   @override
-  Set<Column> get primaryKey => {key};
+  Set<Column> get primaryKey => {id};
 }

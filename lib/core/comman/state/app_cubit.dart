@@ -1,45 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rchive/core/comman/entities/app_config.dart';
 import 'package:rchive/core/comman/entities/vault.dart';
 import 'package:rchive/core/database/database_provider.dart';
-import 'package:rchive/core/usecase.dart';
-import 'package:rchive/features/vault/domain/usecases/get_default_vault.dart';
 
 part 'app_state.dart';
 
 class AppCubit extends Cubit<AppState> {
-  final GetDefaultVault _getDefaultVault;
   final DatabaseProvider _databaseProvider;
 
-  AppCubit(this._databaseProvider, this._getDefaultVault)
-    : super(const AppInitializing());
+  AppCubit(this._databaseProvider) : super(const AppInitializing());
 
   Future<void> initialize() async {
-    final result = await _getDefaultVault(NoParams());
+    try {
+      // this need to be done at top will create config table in db.
+      await _databaseProvider.syncAppConfig(AppConfig.initial());
+      final vault = await _databaseProvider.getDefaultVault();
 
-    await result.fold(
-      (failure) async {
-        emit(AppFailure(failure.message));
-      },
-      (vault) async {
-        if (vault == null) {
-          emit(const AppReady());
-          return;
-        }
+      if (vault == null) {
+        emit(const AppReady());
+        return;
+      }
 
-        try {
-          await _databaseProvider.openVault(vault);
-          emit(AppReady(currentVault: vault));
-        } catch (e) {
-          emit(AppFailure(e.toString()));
-        }
-      },
-    );
+      await _databaseProvider.openVault(vault);
+      emit(AppReady(currentVault: vault));
+    } catch (e) {
+      emit(AppFailure(e.toString()));
+    }
   }
 
   Future<void> openVault(Vault vault) async {
     try {
       await _databaseProvider.openVault(vault);
+      await _databaseProvider.syncAppConfig(
+        _databaseProvider.appConfig.copyWith(defaultVaultId: vault.id),
+      );
       emit(AppReady(currentVault: vault));
     } catch (e) {
       emit(AppFailure(e.toString()));
@@ -48,6 +43,9 @@ class AppCubit extends Cubit<AppState> {
 
   Future<void> closeVault() async {
     await _databaseProvider.closeVault();
+    await _databaseProvider.syncAppConfig(
+      _databaseProvider.appConfig.copyWith(defaultVaultId: null),
+    );
     emit(const AppReady());
   }
 }

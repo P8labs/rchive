@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rchive/core/comman/state/app_cubit.dart';
 import 'package:rchive/core/comman/utils/show_snackbar.dart';
 import 'package:rchive/features/note/presentation/pages/new_note_page.dart';
-import 'package:rchive/features/vault/presentation/bloc/vault_bloc.dart';
 
 class NotesPage extends StatelessWidget {
   const NotesPage({super.key});
@@ -18,9 +17,6 @@ class NotesPage extends StatelessWidget {
         return;
       }
 
-      context.read<VaultBloc>().add(
-        CloseDefaultVaultEvent(appState.currentVault!.id),
-      );
       context.read<AppCubit>().closeVault();
     }
 

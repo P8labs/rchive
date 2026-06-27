@@ -31,7 +31,6 @@ class VaultRepositoryImpl with RepositoryMixin implements VaultRepository {
       );
 
       await _registry.register(vault);
-      await _registry.setDefault(vault.id);
       return vault;
     });
   }
@@ -40,14 +39,11 @@ class VaultRepositoryImpl with RepositoryMixin implements VaultRepository {
   Future<Either<Failure, Vault>> openVault({required String path}) async {
     return guard(() async {
       final vault = await _filesystem.open(path: path);
-
       final existing = await _registry.getById(vault.id);
 
       if (existing == null) {
         await _registry.register(vault);
       }
-
-      await _registry.setDefault(vault.id);
 
       return vault;
     });
@@ -56,11 +52,6 @@ class VaultRepositoryImpl with RepositoryMixin implements VaultRepository {
   @override
   Future<Either<Failure, List<Vault>>> getVaults() async {
     return guard(() async => await _registry.getAll());
-  }
-
-  @override
-  Future<Either<Failure, Vault?>> getDefaultVault() async {
-    return guard(() async => await _registry.getDefault());
   }
 
   @override
@@ -78,27 +69,9 @@ class VaultRepositoryImpl with RepositoryMixin implements VaultRepository {
       if (vault == null) {
         throw LocalException('Vault not found.');
       }
-      await _filesystem.delete(path: vault.path);
+      await _filesystem.delete(path: vault.location);
       await _registry.forget(vaultId);
 
-      return unit;
-    });
-  }
-
-  @override
-  Future<Either<Failure, Unit>> setDefaultVault({
-    required String vaultId,
-  }) async {
-    return guard(() async {
-      await _registry.setDefault(vaultId);
-      return unit;
-    });
-  }
-
-  @override
-  Future<Either<Failure, Unit>> closeDefaultVault({required String vaultId}) {
-    return guard(() async {
-      await _registry.resetDefault(vaultId);
       return unit;
     });
   }

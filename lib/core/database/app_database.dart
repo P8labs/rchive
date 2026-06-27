@@ -8,7 +8,7 @@ import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 part 'app_database.g.dart';
 
-@DriftDatabase(tables: [VaultTable, ConfigTable])
+@DriftDatabase(tables: [VaultTable, AppConfigTable])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 

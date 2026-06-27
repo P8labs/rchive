@@ -3,15 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:rchive/core/comman/entities/vault.dart';
 import 'package:rchive/core/usecase.dart';
-import 'package:rchive/features/vault/domain/usecases/close_default_vault.dart';
 
 import '../../domain/usecases/create_vault.dart';
 import '../../domain/usecases/delete_vault.dart';
 import '../../domain/usecases/forget_vault.dart';
-// import '../../domain/usecases/get_default_vault.dart';
 import '../../domain/usecases/get_vaults.dart';
 import '../../domain/usecases/open_vault.dart';
-import '../../domain/usecases/set_default_vault.dart';
 
 part 'vault_event.dart';
 part 'vault_state.dart';
@@ -22,9 +19,6 @@ class VaultBloc extends Bloc<VaultEvent, VaultState> {
   final OpenVault _openVault;
   final ForgetVault _forgetVault;
   final DeleteVault _deleteVault;
-  final SetDefaultVault _setDefaultVault;
-  // final GetDefaultVault _getDefaultVault;
-  final CloseDefaultVault _closeDefaultVault;
 
   VaultBloc({
     required this._getVaults,
@@ -32,18 +26,12 @@ class VaultBloc extends Bloc<VaultEvent, VaultState> {
     required this._openVault,
     required this._forgetVault,
     required this._deleteVault,
-    required this._setDefaultVault,
-    // required this._getDefaultVault,
-    required this._closeDefaultVault,
   }) : super(const VaultState()) {
     on<LoadVaultsEvent>(_onLoadVaults);
     on<CreateVaultEvent>(_onCreateVault);
     on<OpenVaultEvent>(_onOpenVault);
     on<ForgetVaultEvent>(_onForgetVault);
     on<DeleteVaultEvent>(_onDeleteVault);
-    on<SetDefaultVaultEvent>(_onSetDefaultVault);
-    on<CloseDefaultVaultEvent>(_onCloseDefaultVault);
-    // on<GetDefaultVaultEvent>(_onGetDefaultVault); // will remove it
   }
 
   void _onLoadVaults(LoadVaultsEvent event, Emitter<VaultState> emit) async {
@@ -126,62 +114,4 @@ class VaultBloc extends Bloc<VaultEvent, VaultState> {
       },
     );
   }
-
-  void _onSetDefaultVault(
-    SetDefaultVaultEvent event,
-    Emitter<VaultState> emit,
-  ) async {
-    emit(state.copyWith(loading: true, error: null));
-
-    final result = await _setDefaultVault(
-      SetVaultParams(vaultId: event.vaultId),
-    );
-
-    result.fold(
-      (failure) {
-        emit(state.copyWith(loading: false, error: failure.message));
-      },
-      (_) {
-        emit(state.copyWith(loading: false, clearError: true));
-      },
-    );
-  }
-
-  void _onCloseDefaultVault(
-    CloseDefaultVaultEvent event,
-    Emitter<VaultState> emit,
-  ) async {
-    emit(state.copyWith(loading: true, error: null));
-
-    final result = await _closeDefaultVault(
-      CloseVaultParams(vaultId: event.vaultId),
-    );
-
-    result.fold(
-      (failure) {
-        emit(state.copyWith(loading: false, error: failure.message));
-      },
-      (_) {
-        emit(state.copyWith(loading: false, clearError: true));
-      },
-    );
-  }
-
-  // void _onGetDefaultVault(
-  //   GetDefaultVaultEvent event,
-  //   Emitter<VaultState> emit,
-  // ) async {
-  //   emit(state.copyWith(loading: true, error: null));
-
-  //   final result = await _getDefaultVault(NoParams());
-
-  //   result.fold(
-  //     (failure) {
-  //       emit(state.copyWith(loading: false, error: failure.message));
-  //     },
-  //     (vault) {
-  //       emit(state.copyWith(loading: false, clearError: true));
-  //     },
-  //   );
-  // }
 }

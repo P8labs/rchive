@@ -1,4 +1,4 @@
-import 'package:file_picker/file_picker.dart';
+import 'package:flutter_saf/flutter_saf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rchive/core/comman/state/app_cubit.dart';
@@ -20,6 +20,7 @@ class _VaultSelectionPageState extends State<VaultSelectionPage> {
   @override
   void initState() {
     super.initState();
+    context.read<VaultBloc>().add(LoadVaultsEvent());
     _vaultNameController.addListener(() {
       setState(() {});
     });
@@ -46,7 +47,8 @@ class _VaultSelectionPageState extends State<VaultSelectionPage> {
 
   void onNewVault() async {
     final name = _vaultNameController.text.trim();
-    String? selectedDirectory = await FilePicker.getDirectoryPath();
+    String? selectedDirectory = await FlutterSafChannel.pickDirectory();
+
     if (!mounted || selectedDirectory == null) {
       return;
     }
@@ -59,11 +61,11 @@ class _VaultSelectionPageState extends State<VaultSelectionPage> {
   }
 
   void onExistingVault() async {
-    String? selectedDirectory = await FilePicker.getDirectoryPath();
+    String? selectedDirectory = await FlutterSafChannel.pickDirectory();
+
     if (!mounted || selectedDirectory == null) {
       return;
     }
-
     context.read<VaultBloc>().add(OpenVaultEvent(selectedDirectory));
     context.read<AppCubit>().initialize(); // it will fetch default again
   }
@@ -200,7 +202,7 @@ class _VaultSelectionPageState extends State<VaultSelectionPage> {
                                         ),
                                       ),
                                       subtitle: Text(
-                                        vault.path,
+                                        vault.runtimeType.toString(),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -209,9 +211,6 @@ class _VaultSelectionPageState extends State<VaultSelectionPage> {
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       onTap: () {
-                                        context.read<VaultBloc>().add(
-                                          SetDefaultVaultEvent(vault.id),
-                                        );
                                         context.read<AppCubit>().openVault(
                                           vault,
                                         );

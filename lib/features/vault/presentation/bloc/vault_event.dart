@@ -31,19 +31,3 @@ final class DeleteVaultEvent extends VaultEvent {
 
   const DeleteVaultEvent(this.vaultId);
 }
-
-final class SetDefaultVaultEvent extends VaultEvent {
-  final String vaultId;
-
-  const SetDefaultVaultEvent(this.vaultId);
-}
-
-final class CloseDefaultVaultEvent extends VaultEvent {
-  final String vaultId;
-
-  const CloseDefaultVaultEvent(this.vaultId);
-}
-
-final class GetDefaultVaultEvent extends VaultEvent {
-  const GetDefaultVaultEvent();
-}

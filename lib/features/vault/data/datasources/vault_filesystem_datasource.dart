@@ -49,7 +49,8 @@ class VaultFilesystemDataSourceImpl implements VaultFilesystemDataSource {
     final metadata = VaultMetadataModel(
       id: _uuid.v4(),
       name: name,
-      path: vaultPath,
+      location: vaultPath,
+      storageType: VaultStorageType.saf,
       version: VaultConstants.currentVersion,
       createdAt: DateTime.now().toUtc(),
     );
@@ -67,7 +68,11 @@ class VaultFilesystemDataSourceImpl implements VaultFilesystemDataSource {
       throw LocalException('Vault not found.');
     }
 
-    final metadata = await VaultMetadataModel.load(path);
+    final metadata = VaultMetadataModel.fromJson(
+      json: {},
+      location: "",
+      storageType: VaultStorageType.saf,
+    );
 
     await validate(path);
 

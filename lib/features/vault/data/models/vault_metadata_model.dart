@@ -10,7 +10,8 @@ class VaultMetadataModel extends Vault {
   const VaultMetadataModel({
     required super.id,
     required super.name,
-    required super.path,
+    required super.location,
+    required super.storageType,
     required super.version,
     required super.createdAt,
     super.lastOpenedAt,
@@ -20,7 +21,8 @@ class VaultMetadataModel extends Vault {
     return VaultMetadataModel(
       id: vault.id,
       name: vault.name,
-      path: vault.path,
+      location: vault.location,
+      storageType: vault.storageType,
       version: vault.version,
       createdAt: vault.createdAt,
       lastOpenedAt: vault.lastOpenedAt,
@@ -28,13 +30,15 @@ class VaultMetadataModel extends Vault {
   }
 
   factory VaultMetadataModel.fromJson({
-    required String path,
+    required String location,
+    required VaultStorageType storageType,
     required Map<String, dynamic> json,
   }) {
     return VaultMetadataModel(
       id: json['id'] as String,
       name: json['name'] as String,
-      path: path,
+      location: location,
+      storageType: storageType,
       version: json['version'] as int,
       createdAt: DateTime.parse(json['createdAt'] as String),
       lastOpenedAt: json['lastOpenedAt'] == null
@@ -54,7 +58,7 @@ class VaultMetadataModel extends Vault {
   }
 
   Future<void> save() async {
-    final file = File(p.join(path, fileName));
+    final file = File(p.join(location, fileName));
 
     await file.writeAsString(
       const JsonEncoder.withIndent('  ').convert(toJson()),
@@ -62,19 +66,27 @@ class VaultMetadataModel extends Vault {
     );
   }
 
-  static Future<VaultMetadataModel> load(String vaultPath) async {
-    final file = File(p.join(vaultPath, fileName));
+  static Future<VaultMetadataModel> load({
+    required String location,
+    required VaultStorageType storageType,
+  }) async {
+    final file = File(p.join(location, fileName));
 
     final json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
 
-    return VaultMetadataModel.fromJson(path: vaultPath, json: json);
+    return VaultMetadataModel.fromJson(
+      location: location,
+      storageType: storageType,
+      json: json,
+    );
   }
 
   Vault toEntity() {
     return Vault(
       id: id,
       name: name,
-      path: path,
+      location: location,
+      storageType: storageType,
       version: version,
       createdAt: createdAt,
       lastOpenedAt: lastOpenedAt,

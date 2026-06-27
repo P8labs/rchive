@@ -28,15 +28,28 @@ class $VaultTableTable extends VaultTable
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _pathMeta = const VerificationMeta('path');
+  static const VerificationMeta _locationMeta = const VerificationMeta(
+    'location',
+  );
   @override
-  late final GeneratedColumn<String> path = GeneratedColumn<String>(
-    'path',
+  late final GeneratedColumn<String> location = GeneratedColumn<String>(
+    'location',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _storageTypeMeta = const VerificationMeta(
+    'storageType',
+  );
+  @override
+  late final GeneratedColumn<String> storageType = GeneratedColumn<String>(
+    'storage_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
   );
   static const VerificationMeta _versionMeta = const VerificationMeta(
     'version',
@@ -71,30 +84,15 @@ class $VaultTableTable extends VaultTable
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _isDefaultMeta = const VerificationMeta(
-    'isDefault',
-  );
-  @override
-  late final GeneratedColumn<bool> isDefault = GeneratedColumn<bool>(
-    'is_default',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_default" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
     name,
-    path,
+    location,
+    storageType,
     version,
     createdAt,
     lastOpenedAt,
-    isDefault,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -119,13 +117,24 @@ class $VaultTableTable extends VaultTable
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
-    if (data.containsKey('path')) {
+    if (data.containsKey('location')) {
       context.handle(
-        _pathMeta,
-        path.isAcceptableOrUnknown(data['path']!, _pathMeta),
+        _locationMeta,
+        location.isAcceptableOrUnknown(data['location']!, _locationMeta),
       );
     } else if (isInserting) {
-      context.missing(_pathMeta);
+      context.missing(_locationMeta);
+    }
+    if (data.containsKey('storage_type')) {
+      context.handle(
+        _storageTypeMeta,
+        storageType.isAcceptableOrUnknown(
+          data['storage_type']!,
+          _storageTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_storageTypeMeta);
     }
     if (data.containsKey('version')) {
       context.handle(
@@ -152,12 +161,6 @@ class $VaultTableTable extends VaultTable
         ),
       );
     }
-    if (data.containsKey('is_default')) {
-      context.handle(
-        _isDefaultMeta,
-        isDefault.isAcceptableOrUnknown(data['is_default']!, _isDefaultMeta),
-      );
-    }
     return context;
   }
 
@@ -175,9 +178,13 @@ class $VaultTableTable extends VaultTable
         DriftSqlType.string,
         data['${effectivePrefix}name'],
       )!,
-      path: attachedDatabase.typeMapping.read(
+      location: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}path'],
+        data['${effectivePrefix}location'],
+      )!,
+      storageType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}storage_type'],
       )!,
       version: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -191,10 +198,6 @@ class $VaultTableTable extends VaultTable
         DriftSqlType.dateTime,
         data['${effectivePrefix}last_opened_at'],
       ),
-      isDefault: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_default'],
-      )!,
     );
   }
 
@@ -207,32 +210,40 @@ class $VaultTableTable extends VaultTable
 class VaultTableData extends DataClass implements Insertable<VaultTableData> {
   final String id;
   final String name;
-  final String path;
+
+  /// Filesystem:
+  ///   /storage/emulated/0/Documents/MyVault
+  ///
+  /// SAF:
+  ///   content://com.android.externalstorage.documents/tree/...
+  final String location;
+
+  /// filesystem | saf
+  final String storageType;
   final int version;
   final DateTime createdAt;
   final DateTime? lastOpenedAt;
-  final bool isDefault;
   const VaultTableData({
     required this.id,
     required this.name,
-    required this.path,
+    required this.location,
+    required this.storageType,
     required this.version,
     required this.createdAt,
     this.lastOpenedAt,
-    required this.isDefault,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
-    map['path'] = Variable<String>(path);
+    map['location'] = Variable<String>(location);
+    map['storage_type'] = Variable<String>(storageType);
     map['version'] = Variable<int>(version);
     map['created_at'] = Variable<DateTime>(createdAt);
     if (!nullToAbsent || lastOpenedAt != null) {
       map['last_opened_at'] = Variable<DateTime>(lastOpenedAt);
     }
-    map['is_default'] = Variable<bool>(isDefault);
     return map;
   }
 
@@ -240,13 +251,13 @@ class VaultTableData extends DataClass implements Insertable<VaultTableData> {
     return VaultTableCompanion(
       id: Value(id),
       name: Value(name),
-      path: Value(path),
+      location: Value(location),
+      storageType: Value(storageType),
       version: Value(version),
       createdAt: Value(createdAt),
       lastOpenedAt: lastOpenedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(lastOpenedAt),
-      isDefault: Value(isDefault),
     );
   }
 
@@ -258,11 +269,11 @@ class VaultTableData extends DataClass implements Insertable<VaultTableData> {
     return VaultTableData(
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
-      path: serializer.fromJson<String>(json['path']),
+      location: serializer.fromJson<String>(json['location']),
+      storageType: serializer.fromJson<String>(json['storageType']),
       version: serializer.fromJson<int>(json['version']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       lastOpenedAt: serializer.fromJson<DateTime?>(json['lastOpenedAt']),
-      isDefault: serializer.fromJson<bool>(json['isDefault']),
     );
   }
   @override
@@ -271,42 +282,44 @@ class VaultTableData extends DataClass implements Insertable<VaultTableData> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
-      'path': serializer.toJson<String>(path),
+      'location': serializer.toJson<String>(location),
+      'storageType': serializer.toJson<String>(storageType),
       'version': serializer.toJson<int>(version),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'lastOpenedAt': serializer.toJson<DateTime?>(lastOpenedAt),
-      'isDefault': serializer.toJson<bool>(isDefault),
     };
   }
 
   VaultTableData copyWith({
     String? id,
     String? name,
-    String? path,
+    String? location,
+    String? storageType,
     int? version,
     DateTime? createdAt,
     Value<DateTime?> lastOpenedAt = const Value.absent(),
-    bool? isDefault,
   }) => VaultTableData(
     id: id ?? this.id,
     name: name ?? this.name,
-    path: path ?? this.path,
+    location: location ?? this.location,
+    storageType: storageType ?? this.storageType,
     version: version ?? this.version,
     createdAt: createdAt ?? this.createdAt,
     lastOpenedAt: lastOpenedAt.present ? lastOpenedAt.value : this.lastOpenedAt,
-    isDefault: isDefault ?? this.isDefault,
   );
   VaultTableData copyWithCompanion(VaultTableCompanion data) {
     return VaultTableData(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
-      path: data.path.present ? data.path.value : this.path,
+      location: data.location.present ? data.location.value : this.location,
+      storageType: data.storageType.present
+          ? data.storageType.value
+          : this.storageType,
       version: data.version.present ? data.version.value : this.version,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       lastOpenedAt: data.lastOpenedAt.present
           ? data.lastOpenedAt.value
           : this.lastOpenedAt,
-      isDefault: data.isDefault.present ? data.isDefault.value : this.isDefault,
     );
   }
 
@@ -315,81 +328,89 @@ class VaultTableData extends DataClass implements Insertable<VaultTableData> {
     return (StringBuffer('VaultTableData(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('path: $path, ')
+          ..write('location: $location, ')
+          ..write('storageType: $storageType, ')
           ..write('version: $version, ')
           ..write('createdAt: $createdAt, ')
-          ..write('lastOpenedAt: $lastOpenedAt, ')
-          ..write('isDefault: $isDefault')
+          ..write('lastOpenedAt: $lastOpenedAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, name, path, version, createdAt, lastOpenedAt, isDefault);
+  int get hashCode => Object.hash(
+    id,
+    name,
+    location,
+    storageType,
+    version,
+    createdAt,
+    lastOpenedAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is VaultTableData &&
           other.id == this.id &&
           other.name == this.name &&
-          other.path == this.path &&
+          other.location == this.location &&
+          other.storageType == this.storageType &&
           other.version == this.version &&
           other.createdAt == this.createdAt &&
-          other.lastOpenedAt == this.lastOpenedAt &&
-          other.isDefault == this.isDefault);
+          other.lastOpenedAt == this.lastOpenedAt);
 }
 
 class VaultTableCompanion extends UpdateCompanion<VaultTableData> {
   final Value<String> id;
   final Value<String> name;
-  final Value<String> path;
+  final Value<String> location;
+  final Value<String> storageType;
   final Value<int> version;
   final Value<DateTime> createdAt;
   final Value<DateTime?> lastOpenedAt;
-  final Value<bool> isDefault;
   final Value<int> rowid;
   const VaultTableCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
-    this.path = const Value.absent(),
+    this.location = const Value.absent(),
+    this.storageType = const Value.absent(),
     this.version = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.lastOpenedAt = const Value.absent(),
-    this.isDefault = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   VaultTableCompanion.insert({
     this.id = const Value.absent(),
     required String name,
-    required String path,
+    required String location,
+    required String storageType,
     required int version,
     required DateTime createdAt,
     this.lastOpenedAt = const Value.absent(),
-    this.isDefault = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : name = Value(name),
-       path = Value(path),
+       location = Value(location),
+       storageType = Value(storageType),
        version = Value(version),
        createdAt = Value(createdAt);
   static Insertable<VaultTableData> custom({
     Expression<String>? id,
     Expression<String>? name,
-    Expression<String>? path,
+    Expression<String>? location,
+    Expression<String>? storageType,
     Expression<int>? version,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? lastOpenedAt,
-    Expression<bool>? isDefault,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
-      if (path != null) 'path': path,
+      if (location != null) 'location': location,
+      if (storageType != null) 'storage_type': storageType,
       if (version != null) 'version': version,
       if (createdAt != null) 'created_at': createdAt,
       if (lastOpenedAt != null) 'last_opened_at': lastOpenedAt,
-      if (isDefault != null) 'is_default': isDefault,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -397,21 +418,21 @@ class VaultTableCompanion extends UpdateCompanion<VaultTableData> {
   VaultTableCompanion copyWith({
     Value<String>? id,
     Value<String>? name,
-    Value<String>? path,
+    Value<String>? location,
+    Value<String>? storageType,
     Value<int>? version,
     Value<DateTime>? createdAt,
     Value<DateTime?>? lastOpenedAt,
-    Value<bool>? isDefault,
     Value<int>? rowid,
   }) {
     return VaultTableCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
-      path: path ?? this.path,
+      location: location ?? this.location,
+      storageType: storageType ?? this.storageType,
       version: version ?? this.version,
       createdAt: createdAt ?? this.createdAt,
       lastOpenedAt: lastOpenedAt ?? this.lastOpenedAt,
-      isDefault: isDefault ?? this.isDefault,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -425,8 +446,11 @@ class VaultTableCompanion extends UpdateCompanion<VaultTableData> {
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
-    if (path.present) {
-      map['path'] = Variable<String>(path.value);
+    if (location.present) {
+      map['location'] = Variable<String>(location.value);
+    }
+    if (storageType.present) {
+      map['storage_type'] = Variable<String>(storageType.value);
     }
     if (version.present) {
       map['version'] = Variable<int>(version.value);
@@ -436,9 +460,6 @@ class VaultTableCompanion extends UpdateCompanion<VaultTableData> {
     }
     if (lastOpenedAt.present) {
       map['last_opened_at'] = Variable<DateTime>(lastOpenedAt.value);
-    }
-    if (isDefault.present) {
-      map['is_default'] = Variable<bool>(isDefault.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -451,220 +472,224 @@ class VaultTableCompanion extends UpdateCompanion<VaultTableData> {
     return (StringBuffer('VaultTableCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('path: $path, ')
+          ..write('location: $location, ')
+          ..write('storageType: $storageType, ')
           ..write('version: $version, ')
           ..write('createdAt: $createdAt, ')
           ..write('lastOpenedAt: $lastOpenedAt, ')
-          ..write('isDefault: $isDefault, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
 }
 
-class $ConfigTableTable extends ConfigTable
-    with TableInfo<$ConfigTableTable, ConfigTableData> {
+class $AppConfigTableTable extends AppConfigTable
+    with TableInfo<$AppConfigTableTable, AppConfigTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $ConfigTableTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _keyMeta = const VerificationMeta('key');
+  $AppConfigTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
-  late final GeneratedColumn<String> key = GeneratedColumn<String>(
-    'key',
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
     aliasedName,
     false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
   );
-  static const VerificationMeta _valueMeta = const VerificationMeta('value');
+  static const VerificationMeta _defaultVaultIdMeta = const VerificationMeta(
+    'defaultVaultId',
+  );
   @override
-  late final GeneratedColumn<String> value = GeneratedColumn<String>(
-    'value',
+  late final GeneratedColumn<String> defaultVaultId = GeneratedColumn<String>(
+    'default_vault_id',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.string,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
   );
   @override
-  List<GeneratedColumn> get $columns => [key, value];
+  List<GeneratedColumn> get $columns => [id, defaultVaultId];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'config_table';
+  static const String $name = 'app_config_table';
   @override
   VerificationContext validateIntegrity(
-    Insertable<ConfigTableData> instance, {
+    Insertable<AppConfigTableData> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('key')) {
-      context.handle(
-        _keyMeta,
-        key.isAcceptableOrUnknown(data['key']!, _keyMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_keyMeta);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('value')) {
+    if (data.containsKey('default_vault_id')) {
       context.handle(
-        _valueMeta,
-        value.isAcceptableOrUnknown(data['value']!, _valueMeta),
+        _defaultVaultIdMeta,
+        defaultVaultId.isAcceptableOrUnknown(
+          data['default_vault_id']!,
+          _defaultVaultIdMeta,
+        ),
       );
-    } else if (isInserting) {
-      context.missing(_valueMeta);
     }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {key};
+  Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  ConfigTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  AppConfigTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return ConfigTableData(
-      key: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}key'],
+    return AppConfigTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
       )!,
-      value: attachedDatabase.typeMapping.read(
+      defaultVaultId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}value'],
-      )!,
+        data['${effectivePrefix}default_vault_id'],
+      ),
     );
   }
 
   @override
-  $ConfigTableTable createAlias(String alias) {
-    return $ConfigTableTable(attachedDatabase, alias);
+  $AppConfigTableTable createAlias(String alias) {
+    return $AppConfigTableTable(attachedDatabase, alias);
   }
 }
 
-class ConfigTableData extends DataClass implements Insertable<ConfigTableData> {
-  final String key;
-  final String value;
-  const ConfigTableData({required this.key, required this.value});
+class AppConfigTableData extends DataClass
+    implements Insertable<AppConfigTableData> {
+  final int id;
+  final String? defaultVaultId;
+  const AppConfigTableData({required this.id, this.defaultVaultId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['key'] = Variable<String>(key);
-    map['value'] = Variable<String>(value);
+    map['id'] = Variable<int>(id);
+    if (!nullToAbsent || defaultVaultId != null) {
+      map['default_vault_id'] = Variable<String>(defaultVaultId);
+    }
     return map;
   }
 
-  ConfigTableCompanion toCompanion(bool nullToAbsent) {
-    return ConfigTableCompanion(key: Value(key), value: Value(value));
+  AppConfigTableCompanion toCompanion(bool nullToAbsent) {
+    return AppConfigTableCompanion(
+      id: Value(id),
+      defaultVaultId: defaultVaultId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(defaultVaultId),
+    );
   }
 
-  factory ConfigTableData.fromJson(
+  factory AppConfigTableData.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return ConfigTableData(
-      key: serializer.fromJson<String>(json['key']),
-      value: serializer.fromJson<String>(json['value']),
+    return AppConfigTableData(
+      id: serializer.fromJson<int>(json['id']),
+      defaultVaultId: serializer.fromJson<String?>(json['defaultVaultId']),
     );
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'key': serializer.toJson<String>(key),
-      'value': serializer.toJson<String>(value),
+      'id': serializer.toJson<int>(id),
+      'defaultVaultId': serializer.toJson<String?>(defaultVaultId),
     };
   }
 
-  ConfigTableData copyWith({String? key, String? value}) =>
-      ConfigTableData(key: key ?? this.key, value: value ?? this.value);
-  ConfigTableData copyWithCompanion(ConfigTableCompanion data) {
-    return ConfigTableData(
-      key: data.key.present ? data.key.value : this.key,
-      value: data.value.present ? data.value.value : this.value,
+  AppConfigTableData copyWith({
+    int? id,
+    Value<String?> defaultVaultId = const Value.absent(),
+  }) => AppConfigTableData(
+    id: id ?? this.id,
+    defaultVaultId: defaultVaultId.present
+        ? defaultVaultId.value
+        : this.defaultVaultId,
+  );
+  AppConfigTableData copyWithCompanion(AppConfigTableCompanion data) {
+    return AppConfigTableData(
+      id: data.id.present ? data.id.value : this.id,
+      defaultVaultId: data.defaultVaultId.present
+          ? data.defaultVaultId.value
+          : this.defaultVaultId,
     );
   }
 
   @override
   String toString() {
-    return (StringBuffer('ConfigTableData(')
-          ..write('key: $key, ')
-          ..write('value: $value')
+    return (StringBuffer('AppConfigTableData(')
+          ..write('id: $id, ')
+          ..write('defaultVaultId: $defaultVaultId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(key, value);
+  int get hashCode => Object.hash(id, defaultVaultId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is ConfigTableData &&
-          other.key == this.key &&
-          other.value == this.value);
+      (other is AppConfigTableData &&
+          other.id == this.id &&
+          other.defaultVaultId == this.defaultVaultId);
 }
 
-class ConfigTableCompanion extends UpdateCompanion<ConfigTableData> {
-  final Value<String> key;
-  final Value<String> value;
-  final Value<int> rowid;
-  const ConfigTableCompanion({
-    this.key = const Value.absent(),
-    this.value = const Value.absent(),
-    this.rowid = const Value.absent(),
+class AppConfigTableCompanion extends UpdateCompanion<AppConfigTableData> {
+  final Value<int> id;
+  final Value<String?> defaultVaultId;
+  const AppConfigTableCompanion({
+    this.id = const Value.absent(),
+    this.defaultVaultId = const Value.absent(),
   });
-  ConfigTableCompanion.insert({
-    required String key,
-    required String value,
-    this.rowid = const Value.absent(),
-  }) : key = Value(key),
-       value = Value(value);
-  static Insertable<ConfigTableData> custom({
-    Expression<String>? key,
-    Expression<String>? value,
-    Expression<int>? rowid,
+  AppConfigTableCompanion.insert({
+    this.id = const Value.absent(),
+    this.defaultVaultId = const Value.absent(),
+  });
+  static Insertable<AppConfigTableData> custom({
+    Expression<int>? id,
+    Expression<String>? defaultVaultId,
   }) {
     return RawValuesInsertable({
-      if (key != null) 'key': key,
-      if (value != null) 'value': value,
-      if (rowid != null) 'rowid': rowid,
+      if (id != null) 'id': id,
+      if (defaultVaultId != null) 'default_vault_id': defaultVaultId,
     });
   }
 
-  ConfigTableCompanion copyWith({
-    Value<String>? key,
-    Value<String>? value,
-    Value<int>? rowid,
+  AppConfigTableCompanion copyWith({
+    Value<int>? id,
+    Value<String?>? defaultVaultId,
   }) {
-    return ConfigTableCompanion(
-      key: key ?? this.key,
-      value: value ?? this.value,
-      rowid: rowid ?? this.rowid,
+    return AppConfigTableCompanion(
+      id: id ?? this.id,
+      defaultVaultId: defaultVaultId ?? this.defaultVaultId,
     );
   }
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (key.present) {
-      map['key'] = Variable<String>(key.value);
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
     }
-    if (value.present) {
-      map['value'] = Variable<String>(value.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
+    if (defaultVaultId.present) {
+      map['default_vault_id'] = Variable<String>(defaultVaultId.value);
     }
     return map;
   }
 
   @override
   String toString() {
-    return (StringBuffer('ConfigTableCompanion(')
-          ..write('key: $key, ')
-          ..write('value: $value, ')
-          ..write('rowid: $rowid')
+    return (StringBuffer('AppConfigTableCompanion(')
+          ..write('id: $id, ')
+          ..write('defaultVaultId: $defaultVaultId')
           ..write(')'))
         .toString();
   }
@@ -674,34 +699,37 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $VaultTableTable vaultTable = $VaultTableTable(this);
-  late final $ConfigTableTable configTable = $ConfigTableTable(this);
+  late final $AppConfigTableTable appConfigTable = $AppConfigTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [vaultTable, configTable];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    vaultTable,
+    appConfigTable,
+  ];
 }
 
 typedef $$VaultTableTableCreateCompanionBuilder =
     VaultTableCompanion Function({
       Value<String> id,
       required String name,
-      required String path,
+      required String location,
+      required String storageType,
       required int version,
       required DateTime createdAt,
       Value<DateTime?> lastOpenedAt,
-      Value<bool> isDefault,
       Value<int> rowid,
     });
 typedef $$VaultTableTableUpdateCompanionBuilder =
     VaultTableCompanion Function({
       Value<String> id,
       Value<String> name,
-      Value<String> path,
+      Value<String> location,
+      Value<String> storageType,
       Value<int> version,
       Value<DateTime> createdAt,
       Value<DateTime?> lastOpenedAt,
-      Value<bool> isDefault,
       Value<int> rowid,
     });
 
@@ -724,8 +752,13 @@ class $$VaultTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get path => $composableBuilder(
-    column: $table.path,
+  ColumnFilters<String> get location => $composableBuilder(
+    column: $table.location,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get storageType => $composableBuilder(
+    column: $table.storageType,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -741,11 +774,6 @@ class $$VaultTableTableFilterComposer
 
   ColumnFilters<DateTime> get lastOpenedAt => $composableBuilder(
     column: $table.lastOpenedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get isDefault => $composableBuilder(
-    column: $table.isDefault,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -769,8 +797,13 @@ class $$VaultTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get path => $composableBuilder(
-    column: $table.path,
+  ColumnOrderings<String> get location => $composableBuilder(
+    column: $table.location,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get storageType => $composableBuilder(
+    column: $table.storageType,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -786,11 +819,6 @@ class $$VaultTableTableOrderingComposer
 
   ColumnOrderings<DateTime> get lastOpenedAt => $composableBuilder(
     column: $table.lastOpenedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get isDefault => $composableBuilder(
-    column: $table.isDefault,
     builder: (column) => ColumnOrderings(column),
   );
 }
@@ -810,8 +838,13 @@ class $$VaultTableTableAnnotationComposer
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
 
-  GeneratedColumn<String> get path =>
-      $composableBuilder(column: $table.path, builder: (column) => column);
+  GeneratedColumn<String> get location =>
+      $composableBuilder(column: $table.location, builder: (column) => column);
+
+  GeneratedColumn<String> get storageType => $composableBuilder(
+    column: $table.storageType,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<int> get version =>
       $composableBuilder(column: $table.version, builder: (column) => column);
@@ -823,9 +856,6 @@ class $$VaultTableTableAnnotationComposer
     column: $table.lastOpenedAt,
     builder: (column) => column,
   );
-
-  GeneratedColumn<bool> get isDefault =>
-      $composableBuilder(column: $table.isDefault, builder: (column) => column);
 }
 
 class $$VaultTableTableTableManager
@@ -861,40 +891,40 @@ class $$VaultTableTableTableManager
               ({
                 Value<String> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
-                Value<String> path = const Value.absent(),
+                Value<String> location = const Value.absent(),
+                Value<String> storageType = const Value.absent(),
                 Value<int> version = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime?> lastOpenedAt = const Value.absent(),
-                Value<bool> isDefault = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => VaultTableCompanion(
                 id: id,
                 name: name,
-                path: path,
+                location: location,
+                storageType: storageType,
                 version: version,
                 createdAt: createdAt,
                 lastOpenedAt: lastOpenedAt,
-                isDefault: isDefault,
                 rowid: rowid,
               ),
           createCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
                 required String name,
-                required String path,
+                required String location,
+                required String storageType,
                 required int version,
                 required DateTime createdAt,
                 Value<DateTime?> lastOpenedAt = const Value.absent(),
-                Value<bool> isDefault = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => VaultTableCompanion.insert(
                 id: id,
                 name: name,
-                path: path,
+                location: location,
+                storageType: storageType,
                 version: version,
                 createdAt: createdAt,
                 lastOpenedAt: lastOpenedAt,
-                isDefault: isDefault,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -922,119 +952,125 @@ typedef $$VaultTableTableProcessedTableManager =
       VaultTableData,
       PrefetchHooks Function()
     >;
-typedef $$ConfigTableTableCreateCompanionBuilder =
-    ConfigTableCompanion Function({
-      required String key,
-      required String value,
-      Value<int> rowid,
+typedef $$AppConfigTableTableCreateCompanionBuilder =
+    AppConfigTableCompanion Function({
+      Value<int> id,
+      Value<String?> defaultVaultId,
     });
-typedef $$ConfigTableTableUpdateCompanionBuilder =
-    ConfigTableCompanion Function({
-      Value<String> key,
-      Value<String> value,
-      Value<int> rowid,
+typedef $$AppConfigTableTableUpdateCompanionBuilder =
+    AppConfigTableCompanion Function({
+      Value<int> id,
+      Value<String?> defaultVaultId,
     });
 
-class $$ConfigTableTableFilterComposer
-    extends Composer<_$AppDatabase, $ConfigTableTable> {
-  $$ConfigTableTableFilterComposer({
+class $$AppConfigTableTableFilterComposer
+    extends Composer<_$AppDatabase, $AppConfigTableTable> {
+  $$AppConfigTableTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<String> get key => $composableBuilder(
-    column: $table.key,
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get value => $composableBuilder(
-    column: $table.value,
+  ColumnFilters<String> get defaultVaultId => $composableBuilder(
+    column: $table.defaultVaultId,
     builder: (column) => ColumnFilters(column),
   );
 }
 
-class $$ConfigTableTableOrderingComposer
-    extends Composer<_$AppDatabase, $ConfigTableTable> {
-  $$ConfigTableTableOrderingComposer({
+class $$AppConfigTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $AppConfigTableTable> {
+  $$AppConfigTableTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<String> get key => $composableBuilder(
-    column: $table.key,
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get value => $composableBuilder(
-    column: $table.value,
+  ColumnOrderings<String> get defaultVaultId => $composableBuilder(
+    column: $table.defaultVaultId,
     builder: (column) => ColumnOrderings(column),
   );
 }
 
-class $$ConfigTableTableAnnotationComposer
-    extends Composer<_$AppDatabase, $ConfigTableTable> {
-  $$ConfigTableTableAnnotationComposer({
+class $$AppConfigTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AppConfigTableTable> {
+  $$AppConfigTableTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<String> get key =>
-      $composableBuilder(column: $table.key, builder: (column) => column);
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get value =>
-      $composableBuilder(column: $table.value, builder: (column) => column);
+  GeneratedColumn<String> get defaultVaultId => $composableBuilder(
+    column: $table.defaultVaultId,
+    builder: (column) => column,
+  );
 }
 
-class $$ConfigTableTableTableManager
+class $$AppConfigTableTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $ConfigTableTable,
-          ConfigTableData,
-          $$ConfigTableTableFilterComposer,
-          $$ConfigTableTableOrderingComposer,
-          $$ConfigTableTableAnnotationComposer,
-          $$ConfigTableTableCreateCompanionBuilder,
-          $$ConfigTableTableUpdateCompanionBuilder,
+          $AppConfigTableTable,
+          AppConfigTableData,
+          $$AppConfigTableTableFilterComposer,
+          $$AppConfigTableTableOrderingComposer,
+          $$AppConfigTableTableAnnotationComposer,
+          $$AppConfigTableTableCreateCompanionBuilder,
+          $$AppConfigTableTableUpdateCompanionBuilder,
           (
-            ConfigTableData,
-            BaseReferences<_$AppDatabase, $ConfigTableTable, ConfigTableData>,
+            AppConfigTableData,
+            BaseReferences<
+              _$AppDatabase,
+              $AppConfigTableTable,
+              AppConfigTableData
+            >,
           ),
-          ConfigTableData,
+          AppConfigTableData,
           PrefetchHooks Function()
         > {
-  $$ConfigTableTableTableManager(_$AppDatabase db, $ConfigTableTable table)
-    : super(
+  $$AppConfigTableTableTableManager(
+    _$AppDatabase db,
+    $AppConfigTableTable table,
+  ) : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$ConfigTableTableFilterComposer($db: db, $table: table),
+              $$AppConfigTableTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$ConfigTableTableOrderingComposer($db: db, $table: table),
+              $$AppConfigTableTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$ConfigTableTableAnnotationComposer($db: db, $table: table),
+              $$AppConfigTableTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
-                Value<String> key = const Value.absent(),
-                Value<String> value = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => ConfigTableCompanion(key: key, value: value, rowid: rowid),
+                Value<int> id = const Value.absent(),
+                Value<String?> defaultVaultId = const Value.absent(),
+              }) => AppConfigTableCompanion(
+                id: id,
+                defaultVaultId: defaultVaultId,
+              ),
           createCompanionCallback:
               ({
-                required String key,
-                required String value,
-                Value<int> rowid = const Value.absent(),
-              }) => ConfigTableCompanion.insert(
-                key: key,
-                value: value,
-                rowid: rowid,
+                Value<int> id = const Value.absent(),
+                Value<String?> defaultVaultId = const Value.absent(),
+              }) => AppConfigTableCompanion.insert(
+                id: id,
+                defaultVaultId: defaultVaultId,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -1044,21 +1080,21 @@ class $$ConfigTableTableTableManager
       );
 }
 
-typedef $$ConfigTableTableProcessedTableManager =
+typedef $$AppConfigTableTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $ConfigTableTable,
-      ConfigTableData,
-      $$ConfigTableTableFilterComposer,
-      $$ConfigTableTableOrderingComposer,
-      $$ConfigTableTableAnnotationComposer,
-      $$ConfigTableTableCreateCompanionBuilder,
-      $$ConfigTableTableUpdateCompanionBuilder,
+      $AppConfigTableTable,
+      AppConfigTableData,
+      $$AppConfigTableTableFilterComposer,
+      $$AppConfigTableTableOrderingComposer,
+      $$AppConfigTableTableAnnotationComposer,
+      $$AppConfigTableTableCreateCompanionBuilder,
+      $$AppConfigTableTableUpdateCompanionBuilder,
       (
-        ConfigTableData,
-        BaseReferences<_$AppDatabase, $ConfigTableTable, ConfigTableData>,
+        AppConfigTableData,
+        BaseReferences<_$AppDatabase, $AppConfigTableTable, AppConfigTableData>,
       ),
-      ConfigTableData,
+      AppConfigTableData,
       PrefetchHooks Function()
     >;
 
@@ -1067,6 +1103,6 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$VaultTableTableTableManager get vaultTable =>
       $$VaultTableTableTableManager(_db, _db.vaultTable);
-  $$ConfigTableTableTableManager get configTable =>
-      $$ConfigTableTableTableManager(_db, _db.configTable);
+  $$AppConfigTableTableTableManager get appConfigTable =>
+      $$AppConfigTableTableTableManager(_db, _db.appConfigTable);
 }

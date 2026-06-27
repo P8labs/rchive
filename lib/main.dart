@@ -18,9 +18,7 @@ void main() async {
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => serviceLocator<AppCubit>()..initialize()),
-        BlocProvider(
-          create: (_) => serviceLocator<VaultBloc>()..add(LoadVaultsEvent()),
-        ),
+        BlocProvider(create: (_) => serviceLocator<VaultBloc>()),
         BlocProvider(create: (_) => serviceLocator<NoteBloc>()),
       ],
       child: const RchiveApp(),

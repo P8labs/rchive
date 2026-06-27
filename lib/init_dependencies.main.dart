@@ -21,6 +21,9 @@ void _initVault() {
     // data sources
     ..registerLazySingleton<VaultFilesystemDataSource>(
       () => VaultFilesystemDataSourceImpl(),
+    ) // todo remove above!/
+    ..registerLazySingleton<VaultStorageDataSource>(
+      () => VaultStorageDataSourceImpl(),
     )
     ..registerLazySingleton<VaultRegistryLocalDataSource>(
       () => VaultRegistryLocalDataSourceImpl(serviceLocator<AppDatabase>()),
@@ -42,17 +45,8 @@ void _initVault() {
     ..registerLazySingleton(
       () => ForgetVault(serviceLocator<VaultRepository>()),
     )
-    ..registerLazySingleton(
-      () => GetDefaultVault(serviceLocator<VaultRepository>()),
-    )
     ..registerLazySingleton(() => GetVaults(serviceLocator<VaultRepository>()))
     ..registerLazySingleton(() => OpenVault(serviceLocator<VaultRepository>()))
-    ..registerLazySingleton(
-      () => CloseDefaultVault(serviceLocator<VaultRepository>()),
-    )
-    ..registerLazySingleton(
-      () => SetDefaultVault(serviceLocator<VaultRepository>()),
-    )
     // bloc
     ..registerFactory(
       () => VaultBloc(
@@ -61,14 +55,12 @@ void _initVault() {
         createVault: serviceLocator(),
         deleteVault: serviceLocator(),
         forgetVault: serviceLocator(),
-        setDefaultVault: serviceLocator(),
-        closeDefaultVault: serviceLocator(),
       ),
     );
 }
 
 void _initCore() {
   serviceLocator.registerLazySingleton(
-    () => AppCubit(serviceLocator(), serviceLocator()),
+    () => AppCubit(serviceLocator<DatabaseProvider>()),
   );
 }

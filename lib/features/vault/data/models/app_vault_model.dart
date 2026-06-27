@@ -6,7 +6,8 @@ class AppVaultModel extends Vault {
   const AppVaultModel({
     required super.id,
     required super.name,
-    required super.path,
+    required super.location,
+    required super.storageType,
     required super.version,
     required super.createdAt,
     super.lastOpenedAt,
@@ -16,7 +17,8 @@ class AppVaultModel extends Vault {
     return AppVaultModel(
       id: vault.id,
       name: vault.name,
-      path: vault.path,
+      location: vault.location,
+      storageType: vault.storageType,
       version: vault.version,
       createdAt: vault.createdAt,
       lastOpenedAt: vault.lastOpenedAt,
@@ -27,7 +29,8 @@ class AppVaultModel extends Vault {
     return AppVaultModel(
       id: row.id,
       name: row.name,
-      path: row.path,
+      location: row.location,
+      storageType: VaultStorageType.values.byName(row.storageType),
       version: row.version,
       createdAt: row.createdAt,
       lastOpenedAt: row.lastOpenedAt,
@@ -38,7 +41,8 @@ class AppVaultModel extends Vault {
     return VaultTableCompanion(
       id: Value(id),
       name: Value(name),
-      path: Value(path),
+      location: Value(location),
+      storageType: Value(storageType.name),
       version: Value(version),
       createdAt: Value(createdAt),
       lastOpenedAt: Value(lastOpenedAt),
@@ -49,7 +53,8 @@ class AppVaultModel extends Vault {
     return Vault(
       id: id,
       name: name,
-      path: path,
+      location: location,
+      storageType: storageType,
       version: version,
       createdAt: createdAt,
       lastOpenedAt: lastOpenedAt,
