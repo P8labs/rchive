@@ -23,7 +23,7 @@ class AppVaultModel extends Vault {
     );
   }
 
-  factory AppVaultModel.fromDrift(VaultRegistryData row) {
+  factory AppVaultModel.fromDrift(VaultTableData row) {
     return AppVaultModel(
       id: row.id,
       name: row.name,
@@ -34,8 +34,8 @@ class AppVaultModel extends Vault {
     );
   }
 
-  VaultRegistryCompanion toCompanion() {
-    return VaultRegistryCompanion(
+  VaultTableCompanion toCompanion() {
+    return VaultTableCompanion(
       id: Value(id),
       name: Value(name),
       path: Value(path),

@@ -18,7 +18,9 @@ void main() async {
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => serviceLocator<AppCubit>()..initialize()),
-        BlocProvider(create: (_) => serviceLocator<VaultBloc>()),
+        BlocProvider(
+          create: (_) => serviceLocator<VaultBloc>()..add(LoadVaultsEvent()),
+        ),
         BlocProvider(create: (_) => serviceLocator<NoteBloc>()),
       ],
       child: const RchiveApp(),
@@ -36,20 +38,39 @@ class RchiveApp extends StatelessWidget {
       theme: AppTheme.darkTheme,
       home: BlocBuilder<AppCubit, AppState>(
         builder: (context, state) {
+          Widget child;
+
           switch (state) {
             case AppInitializing():
-              return const SplashPage();
+              child = const SplashPage(key: ValueKey('splash'));
 
             case AppReady():
-              if (state.currentVault == null) {
-                return const VaultSelectionPage();
-              }
-
-              return const NotesPage();
+              child = state.currentVault == null
+                  ? const VaultSelectionPage(key: ValueKey('vault-selection'))
+                  : const NotesPage(key: ValueKey('notes'));
 
             case AppFailure():
-              return ErrorPage(message: state.message);
+              child = ErrorPage(
+                key: const ValueKey('error'),
+                message: state.message,
+              );
           }
+
+          return AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, animation) {
+              final offset = Tween<Offset>(
+                begin: const Offset(0, 0.03),
+                end: Offset.zero,
+              ).animate(animation);
+
+              return FadeTransition(
+                opacity: animation,
+                child: SlideTransition(position: offset, child: child),
+              );
+            },
+            child: child,
+          );
         },
       ),
     );

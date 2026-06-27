@@ -15,4 +15,6 @@ abstract interface class VaultRepository {
   Future<Either<Failure, Vault>> openVault({required String path});
   Future<Either<Failure, Unit>> forgetVault({required String vaultId});
   Future<Either<Failure, Unit>> deleteVault({required String vaultId});
+
+  Future<Either<Failure, Unit>> closeDefaultVault({required String vaultId});
 }

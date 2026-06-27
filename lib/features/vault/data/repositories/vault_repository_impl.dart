@@ -94,4 +94,12 @@ class VaultRepositoryImpl with RepositoryMixin implements VaultRepository {
       return unit;
     });
   }
+
+  @override
+  Future<Either<Failure, Unit>> closeDefaultVault({required String vaultId}) {
+    return guard(() async {
+      await _registry.resetDefault(vaultId);
+      return unit;
+    });
+  }
 }

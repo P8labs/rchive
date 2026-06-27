@@ -11,7 +11,7 @@ class AppCubit extends Cubit<AppState> {
   final GetDefaultVault _getDefaultVault;
   final DatabaseProvider _databaseProvider;
 
-  AppCubit(this._getDefaultVault, this._databaseProvider)
+  AppCubit(this._databaseProvider, this._getDefaultVault)
     : super(const AppInitializing());
 
   Future<void> initialize() async {

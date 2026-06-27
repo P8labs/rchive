@@ -10,10 +10,10 @@ Future<void> initDependencies() async {
     ..registerSingleton<AppDatabase>(appDatabase)
     ..registerSingleton<DatabaseProvider>(
       DatabaseProviderImpl(appDatabase: appDatabase),
-    )
-    ..registerLazySingleton(() => AppCubit(serviceLocator(), serviceLocator()));
+    );
 
   _initVault();
+  _initCore();
 }
 
 void _initVault() {
@@ -33,12 +33,42 @@ void _initVault() {
       ),
     )
     // usecases
-    ..registerFactory(() => CreateVault(serviceLocator<VaultRepository>()))
-    ..registerFactory(() => DeleteVault(serviceLocator<VaultRepository>()))
-    ..registerFactory(() => ForgetVault(serviceLocator<VaultRepository>()))
-    ..registerFactory(() => GetDefaultVault(serviceLocator<VaultRepository>()))
-    ..registerFactory(() => GetVaults(serviceLocator<VaultRepository>()))
-    ..registerFactory(() => SetDefaultVault(serviceLocator<VaultRepository>()))
+    ..registerLazySingleton(
+      () => CreateVault(serviceLocator<VaultRepository>()),
+    )
+    ..registerLazySingleton(
+      () => DeleteVault(serviceLocator<VaultRepository>()),
+    )
+    ..registerLazySingleton(
+      () => ForgetVault(serviceLocator<VaultRepository>()),
+    )
+    ..registerLazySingleton(
+      () => GetDefaultVault(serviceLocator<VaultRepository>()),
+    )
+    ..registerLazySingleton(() => GetVaults(serviceLocator<VaultRepository>()))
+    ..registerLazySingleton(() => OpenVault(serviceLocator<VaultRepository>()))
+    ..registerLazySingleton(
+      () => CloseDefaultVault(serviceLocator<VaultRepository>()),
+    )
+    ..registerLazySingleton(
+      () => SetDefaultVault(serviceLocator<VaultRepository>()),
+    )
     // bloc
-    ..registerFactory(() => VaultBloc());
+    ..registerFactory(
+      () => VaultBloc(
+        getVaults: serviceLocator(),
+        openVault: serviceLocator(),
+        createVault: serviceLocator(),
+        deleteVault: serviceLocator(),
+        forgetVault: serviceLocator(),
+        setDefaultVault: serviceLocator(),
+        closeDefaultVault: serviceLocator(),
+      ),
+    );
+}
+
+void _initCore() {
+  serviceLocator.registerLazySingleton(
+    () => AppCubit(serviceLocator(), serviceLocator()),
+  );
 }
