@@ -14,6 +14,11 @@ class AppConfig {
     );
   }
 
+  @override
+  String toString() {
+    return "APPCONFIG: {ID: $id, DEFAULT VAULT ID: $defaultVaultId}";
+  }
+
   factory AppConfig.initial() {
     return AppConfig(id: defaultConfigId);
   }

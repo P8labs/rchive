@@ -1,7 +1,7 @@
 package com.example.flutter_saf
 
-import android.app.Activity
 import androidx.annotation.NonNull
+import com.example.flutter_saf.picker.DirectoryPicker
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -10,8 +10,7 @@ import io.flutter.plugin.common.MethodChannel
 class FlutterSafPlugin : FlutterPlugin, ActivityAware {
 
     private lateinit var channel: MethodChannel
-
-    private var activity: Activity? = null
+    private val directoryPicker = DirectoryPicker()
     private var handler: FlutterSafMethodCallHandler? = null
 
     override fun onAttachedToEngine(
@@ -32,19 +31,19 @@ class FlutterSafPlugin : FlutterPlugin, ActivityAware {
     override fun onAttachedToActivity(
         binding: ActivityPluginBinding,
     ) {
-        activity = binding.activity
+        directoryPicker.setActivity(binding.activity)
+        binding.addActivityResultListener(directoryPicker)
 
         handler = FlutterSafMethodCallHandler(
             binding.activity,
+            directoryPicker,
         )
 
         channel.setMethodCallHandler(handler)
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
-        channel.setMethodCallHandler(null)
-        handler = null
-        activity = null
+        onDetachedFromActivity()
     }
 
     override fun onReattachedToActivityForConfigChanges(
@@ -55,7 +54,7 @@ class FlutterSafPlugin : FlutterPlugin, ActivityAware {
 
     override fun onDetachedFromActivity() {
         channel.setMethodCallHandler(null)
+        directoryPicker.setActivity(null)
         handler = null
-        activity = null
     }
 }

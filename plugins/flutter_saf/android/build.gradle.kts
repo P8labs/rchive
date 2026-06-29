@@ -72,6 +72,8 @@ kotlin {
 }
 
 dependencies {
+    implementation("androidx.documentfile:documentfile:1.1.0")
+    implementation("androidx.activity:activity-ktx:1.9.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.mockito:mockito-core:5.0.0")
 }

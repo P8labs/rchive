@@ -14,7 +14,7 @@ class AppCubit extends Cubit<AppState> {
   Future<void> initialize() async {
     try {
       // this need to be done at top will create config table in db.
-      await _databaseProvider.syncAppConfig(AppConfig.initial());
+      await _databaseProvider.syncAppConfig(AppConfig.initial(), init: true);
       final vault = await _databaseProvider.getDefaultVault();
 
       if (vault == null) {
@@ -42,10 +42,14 @@ class AppCubit extends Cubit<AppState> {
   }
 
   Future<void> closeVault() async {
-    await _databaseProvider.closeVault();
-    await _databaseProvider.syncAppConfig(
-      _databaseProvider.appConfig.copyWith(defaultVaultId: null),
-    );
-    emit(const AppReady());
+    try {
+      await _databaseProvider.closeVault();
+      await _databaseProvider.syncAppConfig(
+        _databaseProvider.appConfig.copyWith(defaultVaultId: ""),
+      );
+      emit(const AppReady());
+    } catch (e) {
+      emit(AppFailure(e.toString()));
+    }
   }
 }

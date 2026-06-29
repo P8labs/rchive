@@ -18,7 +18,7 @@ abstract interface class DatabaseProvider {
   Future<void> setDefaultVaultId(String id);
   Future<void> removeDefaultVaultId();
 
-  Future<AppConfig> syncAppConfig(AppConfig config);
+  Future<AppConfig> syncAppConfig(AppConfig config, {bool init = false});
 }
 
 class DatabaseProviderImpl implements DatabaseProvider {
@@ -94,16 +94,32 @@ class DatabaseProviderImpl implements DatabaseProvider {
   }
 
   @override
-  Future<AppConfig> syncAppConfig(AppConfig config) async {
-    await appDatabase
-        .into(appDatabase.appConfigTable)
-        .insertOnConflictUpdate(config.toCompanion());
+  Future<AppConfig> syncAppConfig(AppConfig config, {bool init = false}) async {
+    print("APP CONF BEFORE UPDATE: $config");
+
+    if (init) {
+      final exists = await (appDatabase.select(
+        appDatabase.appConfigTable,
+      )..where((t) => t.id.equals(config.id))).getSingleOrNull();
+
+      if (exists == null) {
+        await appDatabase
+            .into(appDatabase.appConfigTable)
+            .insert(config.toCompanion());
+      }
+    } else {
+      await appDatabase
+          .into(appDatabase.appConfigTable)
+          .insertOnConflictUpdate(config.toCompanion());
+    }
 
     final row = await (appDatabase.select(
       appDatabase.appConfigTable,
-    )..where((t) => t.id.equals(AppConfig.defaultConfigId))).getSingle();
+    )..where((t) => t.id.equals(config.id))).getSingle();
 
     _appConfig = AppConfig.fromDrift(row);
+
+    print("APP CONF AFTER UPDATE: $_appConfig");
 
     return _appConfig;
   }

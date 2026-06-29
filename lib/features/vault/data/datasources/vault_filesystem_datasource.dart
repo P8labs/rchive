@@ -8,6 +8,7 @@ import 'package:rchive/core/error/exceptions.dart';
 import 'package:rchive/features/vault/constants/vault_constants.dart';
 import 'package:rchive/features/vault/data/models/vault_metadata_model.dart';
 
+/// NOT IN USE AS OF NOW>
 abstract interface class VaultFilesystemDataSource {
   Future<Vault> create({required String name, required String parentPath});
   Future<Vault> open({required String path});

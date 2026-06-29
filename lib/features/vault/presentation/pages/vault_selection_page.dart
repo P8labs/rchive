@@ -1,6 +1,7 @@
 import 'package:flutter_saf/flutter_saf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:rchive/core/comman/state/app_cubit.dart';
 import 'package:rchive/core/comman/utils/show_snackbar.dart';
 import 'package:rchive/core/comman/widgets/loader.dart';
@@ -57,7 +58,7 @@ class _VaultSelectionPageState extends State<VaultSelectionPage> {
       CreateVaultEvent(name: name, parentPath: selectedDirectory),
     );
 
-    context.read<AppCubit>().initialize();
+    await context.read<AppCubit>().initialize();
   }
 
   void onExistingVault() async {
@@ -202,7 +203,9 @@ class _VaultSelectionPageState extends State<VaultSelectionPage> {
                                         ),
                                       ),
                                       subtitle: Text(
-                                        vault.runtimeType.toString(),
+                                        DateFormat(
+                                          "MM/dd/yyyy",
+                                        ).format(vault.createdAt),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),

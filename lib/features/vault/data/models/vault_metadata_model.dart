@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:path/path.dart' as p;
 import 'package:rchive/core/comman/entities/vault.dart';
+import 'package:rchive/features/vault/constants/vault_constants.dart';
+import 'package:rchive/features/vault/data/storage/vault_storage.dart';
 
 class VaultMetadataModel extends Vault {
   static const fileName = 'vault.json';
@@ -67,15 +69,14 @@ class VaultMetadataModel extends Vault {
   }
 
   static Future<VaultMetadataModel> load({
-    required String location,
+    required VaultStorage vaultStorage,
     required VaultStorageType storageType,
+    // required String location,
   }) async {
-    final file = File(p.join(location, fileName));
-
-    final json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
-
+    final raw = await vaultStorage.read(VaultConstants.metadataFile);
+    final json = jsonDecode(utf8.decode(raw)) as Map<String, dynamic>;
     return VaultMetadataModel.fromJson(
-      location: location,
+      location: vaultStorage.location,
       storageType: storageType,
       json: json,
     );

@@ -9,7 +9,7 @@ final class SafStorage implements VaultStorage {
   const SafStorage({required this.treeUri});
 
   @override
-  Future<bool> exists(String path) {
+  Future<bool> exists([String path = ""]) {
     return FlutterSafChannel.exists(treeUri: treeUri, path: path);
   }
 
@@ -70,4 +70,7 @@ final class SafStorage implements VaultStorage {
   Future<void> write(String path, Uint8List bytes) {
     return FlutterSafChannel.write(treeUri: treeUri, path: path, bytes: bytes);
   }
+
+  @override
+  String get location => treeUri;
 }

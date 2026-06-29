@@ -10,9 +10,8 @@ import io.flutter.plugin.common.MethodChannel
 
 class FlutterSafMethodCallHandler(
     private val activity: Activity,
+    private val directoryPicker: DirectoryPicker,
 ) : MethodChannel.MethodCallHandler {
-
-    private val directoryPicker = DirectoryPicker(activity)
 
     override fun onMethodCall(
         call: MethodCall,
@@ -104,7 +103,7 @@ class FlutterSafMethodCallHandler(
             }
         } catch (e: SafException) {
             result.error(
-                "SAF_ERROR",
+                e.code,
                 e.message,
                 null,
             )

@@ -63,17 +63,44 @@ class VaultStorageDataSourceImpl implements VaultStorageDataSource {
   }
 
   @override
-  Future<Vault> open({required String treeUri}) {
-    throw UnimplementedError();
+  Future<Vault> open({required String treeUri}) async {
+    final vaultStorage = storage(treeUri);
+
+    await validate(vaultStorage);
+    final metadata = await VaultMetadataModel.load(
+      vaultStorage: vaultStorage,
+      storageType: VaultStorageType.saf,
+    );
+
+    return metadata;
   }
 
   @override
-  Future<void> delete({required String treeUri}) {
-    throw UnimplementedError();
+  Future<void> delete({required String treeUri}) async {
+    final vaultStorage = storage(treeUri);
+    if (!await vaultStorage.exists()) {
+      throw LocalException('Vault not found.');
+    }
+
+    await vaultStorage.delete("", recursive: true);
   }
 
   @override
-  Future<bool> exists({required String treeUri}) {
-    throw UnimplementedError();
+  Future<bool> exists({required String treeUri}) async {
+    final vaultStorage = storage(treeUri);
+    return !await vaultStorage.exists();
+  }
+
+  Future<void> validate(VaultStorage vaultStorage) async {
+    final metadata = await vaultStorage.exists(VaultConstants.metadataFile);
+    final notes = await vaultStorage.exists(VaultConstants.notesDirectory);
+
+    final attachments = await vaultStorage.exists(
+      VaultConstants.attachmentsDirectory,
+    );
+
+    if (!metadata || !notes || !attachments) {
+      throw LocalException('Invalid vault.');
+    }
   }
 }

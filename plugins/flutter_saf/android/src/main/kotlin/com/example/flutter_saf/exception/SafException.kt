@@ -1,38 +1,41 @@
 package com.example.flutter_saf.exception
 
 sealed class SafException(
-    override val message: String,
-) : Exception(message) {
+    message: String,
+    cause: Throwable? = null,
+) : Exception(message, cause) {
 
-    data class InvalidTreeUri(
-        val uri: String,
-    ) : SafException("Invalid tree URI: $uri")
+    abstract val code: String
 
-    data class FileNotFound(
-        val path: String,
-    ) : SafException("File not found: $path")
+    class InvalidTreeUri(val uri: String) : SafException("Invalid tree URI: $uri") {
+        override val code = "INVALID_TREE_URI"
+    }
 
-    data class DirectoryNotFound(
-        val path: String,
-    ) : SafException("Directory not found: $path")
+    class FileNotFound(val path: String) : SafException("File not found: $path") {
+        override val code = "FILE_NOT_FOUND"
+    }
 
-    data class AlreadyExists(
-        val path: String,
-    ) : SafException("Already exists: $path")
+    class DirectoryNotFound(val path: String) : SafException("Directory not found: $path") {
+        override val code = "DIRECTORY_NOT_FOUND"
+    }
 
-    data class PermissionDenied(
-        val path: String,
-    ) : SafException("Permission denied: $path")
+    class AlreadyExists(val path: String) : SafException("Already exists: $path") {
+        override val code = "ALREADY_EXISTS"
+    }
 
-    data class InvalidPath(
-        val path: String,
-    ) : SafException("Invalid path: $path")
+    class PermissionDenied(val path: String) : SafException("Permission denied: $path") {
+        override val code = "PERMISSION_DENIED"
+    }
 
-    data class OperationFailed(
+    class InvalidPath(val path: String) : SafException("Invalid path: $path") {
+        override val code = "INVALID_PATH"
+    }
+
+    class OperationFailed(
         val operation: String,
         val path: String,
-        val cause: Throwable? = null,
-    ) : SafException("$operation failed: $path") {
-        override val cause: Throwable? = cause
+        errorCause: Throwable? = null,
+    ) : SafException("$operation failed: $path", errorCause) {
+        override val code = "OPERATION_FAILED"
     }
 }

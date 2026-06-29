@@ -1,8 +1,10 @@
 import 'dart:typed_data';
 
 abstract interface class VaultStorage {
+  String get location;
+
   /// Returns whether a file or directory exists.
-  Future<bool> exists(String path);
+  Future<bool> exists([String path = ""]);
 
   /// Lists the direct children of a directory.
   Future<List<VaultEntry>> list(String path);

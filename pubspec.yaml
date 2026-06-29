@@ -53,6 +53,7 @@ dependencies:
     path: plugins/markdown_editor_plus
   flutter_saf:
     path: plugins/flutter_saf
+  intl: ^0.20.3
 
 dev_dependencies:
   flutter_test:
