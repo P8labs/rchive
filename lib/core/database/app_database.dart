@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:rchive/features/vault/data/storage/vault_storage.dart';
 import 'package:rchive/core/database/tables/config_table.dart';
 import 'package:rchive/core/database/tables/file_table.dart';
 import 'package:rchive/core/database/tables/vault_table.dart';

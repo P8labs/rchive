@@ -2,22 +2,20 @@ part of 'vault_bloc.dart';
 
 @immutable
 class VaultState {
-  final bool loading;
+  const VaultState();
+}
+
+final class VaultLoading extends VaultState {}
+
+final class VaultError extends VaultState {
+  final String message;
+  const VaultError(this.message);
+}
+
+final class VaultInvokeInit extends VaultState {}
+
+final class LoadVaults extends VaultState {
   final List<Vault> vaults;
-  final String? error;
 
-  const VaultState({this.loading = false, this.vaults = const [], this.error});
-
-  VaultState copyWith({
-    bool? loading,
-    List<Vault>? vaults,
-    String? error,
-    bool clearError = false,
-  }) {
-    return VaultState(
-      loading: loading ?? this.loading,
-      vaults: vaults ?? this.vaults,
-      error: clearError ? null : (error ?? this.error),
-    );
-  }
+  const LoadVaults(this.vaults);
 }

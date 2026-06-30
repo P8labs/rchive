@@ -35,83 +35,62 @@ class VaultBloc extends Bloc<VaultEvent, VaultState> {
   }
 
   void _onLoadVaults(LoadVaultsEvent event, Emitter<VaultState> emit) async {
-    emit(state.copyWith(loading: true, error: null));
+    emit(VaultLoading());
 
     final result = await _getVaults(NoParams());
 
     result.fold(
-      (failure) {
-        emit(state.copyWith(loading: false, error: failure.message));
-      },
-      (vaults) {
-        emit(state.copyWith(loading: false, vaults: vaults, clearError: true));
-      },
+      (failure) => emit(VaultError(failure.message)),
+      (vaults) => emit(LoadVaults(vaults)),
     );
   }
 
   void _onCreateVault(CreateVaultEvent event, Emitter<VaultState> emit) async {
-    emit(state.copyWith(loading: true, error: null));
+    emit(VaultLoading());
 
     final result = await _createVault(
       CreateVaultParams(name: event.name, parentPath: event.parentPath),
     );
 
     result.fold(
-      (failure) {
-        emit(state.copyWith(loading: false, error: failure.message));
-      },
-      (vault) {
-        emit(state.copyWith(loading: false, clearError: true));
-      },
+      (failure) => emit(VaultError(failure.message)),
+      (_) => emit(VaultInvokeInit()),
     );
   }
 
   void _onOpenVault(OpenVaultEvent event, Emitter<VaultState> emit) async {
-    emit(state.copyWith(loading: true, error: null));
-
+    emit(VaultLoading());
     final result = await _openVault(OpenVaultParams(path: event.path));
 
     result.fold(
-      (failure) {
-        emit(state.copyWith(loading: false, error: failure.message));
-      },
-      (vault) {
-        emit(state.copyWith(loading: false, clearError: true));
-      },
+      (failure) => emit(VaultError(failure.message)),
+      (_) => emit(VaultInvokeInit()),
     );
   }
 
   void _onForgetVault(ForgetVaultEvent event, Emitter<VaultState> emit) async {
-    emit(state.copyWith(loading: true, error: null));
+    emit(VaultLoading());
 
     final result = await _forgetVault(
       ForgetVaultParams(vaultId: event.vaultId),
     );
 
     result.fold(
-      (failure) {
-        emit(state.copyWith(loading: false, error: failure.message));
-      },
-      (_) {
-        emit(state.copyWith(loading: false, clearError: true));
-      },
+      (failure) => emit(VaultError(failure.message)),
+      (_) => emit(VaultInvokeInit()),
     );
   }
 
   void _onDeleteVault(DeleteVaultEvent event, Emitter<VaultState> emit) async {
-    emit(state.copyWith(loading: true, error: null));
+    emit(VaultLoading());
 
     final result = await _deleteVault(
       DeleteVaultParams(vaultId: event.vaultId),
     );
 
     result.fold(
-      (failure) {
-        emit(state.copyWith(loading: false, error: failure.message));
-      },
-      (_) {
-        emit(state.copyWith(loading: false, clearError: true));
-      },
+      (failure) => emit(VaultError(failure.message)),
+      (_) => emit(VaultInvokeInit()),
     );
   }
 }

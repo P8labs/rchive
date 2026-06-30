@@ -41,6 +41,7 @@ class VaultRegistryLocalDataSourceImpl implements VaultRegistryLocalDataSource {
         .into(database.vaultTable)
         .insertOnConflictUpdate(
           VaultTableCompanion.insert(
+            id: Value(vault.id),
             name: vault.name,
             location: vault.location,
             storageType: vault.storageType.name,
@@ -57,6 +58,7 @@ class VaultRegistryLocalDataSourceImpl implements VaultRegistryLocalDataSource {
       database.vaultTable,
     )..where((t) => t.id.equals(vault.id))).write(
       VaultTableCompanion(
+        id: Value(vault.id),
         name: Value(vault.name),
         location: Value(vault.location),
         storageType: Value(vault.storageType.name),

@@ -701,15 +701,6 @@ class $VaultFileTableTable extends VaultFileTable
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $VaultFileTableTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-    'id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
   static const VerificationMeta _vaultIdMeta = const VerificationMeta(
     'vaultId',
   );
@@ -792,7 +783,6 @@ class $VaultFileTableTable extends VaultFileTable
   );
   @override
   List<GeneratedColumn> get $columns => [
-    id,
     vaultId,
     path,
     type,
@@ -814,11 +804,6 @@ class $VaultFileTableTable extends VaultFileTable
   }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
     if (data.containsKey('vault_id')) {
       context.handle(
         _vaultIdMeta,
@@ -868,19 +853,11 @@ class $VaultFileTableTable extends VaultFileTable
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  List<Set<GeneratedColumn>> get uniqueKeys => [
-    {vaultId, path},
-  ];
+  Set<GeneratedColumn> get $primaryKey => {vaultId, path};
   @override
   VaultFileTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return VaultFileTableData(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}id'],
-      )!,
       vaultId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}vault_id'],
@@ -935,8 +912,6 @@ class $VaultFileTableTable extends VaultFileTable
 
 class VaultFileTableData extends DataClass
     implements Insertable<VaultFileTableData> {
-  final String id;
-
   /// Foreign key to VaultTable.id
   final String vaultId;
 
@@ -958,7 +933,6 @@ class VaultFileTableData extends DataClass
   final String? checksum;
   final DateTime indexedAt;
   const VaultFileTableData({
-    required this.id,
     required this.vaultId,
     required this.path,
     required this.type,
@@ -971,7 +945,6 @@ class VaultFileTableData extends DataClass
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['id'] = Variable<String>(id);
     map['vault_id'] = Variable<String>(vaultId);
     map['path'] = Variable<String>(path);
     {
@@ -999,7 +972,6 @@ class VaultFileTableData extends DataClass
 
   VaultFileTableCompanion toCompanion(bool nullToAbsent) {
     return VaultFileTableCompanion(
-      id: Value(id),
       vaultId: Value(vaultId),
       path: Value(path),
       type: Value(type),
@@ -1021,7 +993,6 @@ class VaultFileTableData extends DataClass
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return VaultFileTableData(
-      id: serializer.fromJson<String>(json['id']),
       vaultId: serializer.fromJson<String>(json['vaultId']),
       path: serializer.fromJson<String>(json['path']),
       type: $VaultFileTableTable.$convertertype.fromJson(
@@ -1040,7 +1011,6 @@ class VaultFileTableData extends DataClass
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
       'vaultId': serializer.toJson<String>(vaultId),
       'path': serializer.toJson<String>(path),
       'type': serializer.toJson<String>(
@@ -1057,7 +1027,6 @@ class VaultFileTableData extends DataClass
   }
 
   VaultFileTableData copyWith({
-    String? id,
     String? vaultId,
     String? path,
     VaultEntryType? type,
@@ -1067,7 +1036,6 @@ class VaultFileTableData extends DataClass
     Value<String?> checksum = const Value.absent(),
     DateTime? indexedAt,
   }) => VaultFileTableData(
-    id: id ?? this.id,
     vaultId: vaultId ?? this.vaultId,
     path: path ?? this.path,
     type: type ?? this.type,
@@ -1079,7 +1047,6 @@ class VaultFileTableData extends DataClass
   );
   VaultFileTableData copyWithCompanion(VaultFileTableCompanion data) {
     return VaultFileTableData(
-      id: data.id.present ? data.id.value : this.id,
       vaultId: data.vaultId.present ? data.vaultId.value : this.vaultId,
       path: data.path.present ? data.path.value : this.path,
       type: data.type.present ? data.type.value : this.type,
@@ -1096,7 +1063,6 @@ class VaultFileTableData extends DataClass
   @override
   String toString() {
     return (StringBuffer('VaultFileTableData(')
-          ..write('id: $id, ')
           ..write('vaultId: $vaultId, ')
           ..write('path: $path, ')
           ..write('type: $type, ')
@@ -1111,7 +1077,6 @@ class VaultFileTableData extends DataClass
 
   @override
   int get hashCode => Object.hash(
-    id,
     vaultId,
     path,
     type,
@@ -1125,7 +1090,6 @@ class VaultFileTableData extends DataClass
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is VaultFileTableData &&
-          other.id == this.id &&
           other.vaultId == this.vaultId &&
           other.path == this.path &&
           other.type == this.type &&
@@ -1137,7 +1101,6 @@ class VaultFileTableData extends DataClass
 }
 
 class VaultFileTableCompanion extends UpdateCompanion<VaultFileTableData> {
-  final Value<String> id;
   final Value<String> vaultId;
   final Value<String> path;
   final Value<VaultEntryType> type;
@@ -1148,7 +1111,6 @@ class VaultFileTableCompanion extends UpdateCompanion<VaultFileTableData> {
   final Value<DateTime> indexedAt;
   final Value<int> rowid;
   const VaultFileTableCompanion({
-    this.id = const Value.absent(),
     this.vaultId = const Value.absent(),
     this.path = const Value.absent(),
     this.type = const Value.absent(),
@@ -1160,7 +1122,6 @@ class VaultFileTableCompanion extends UpdateCompanion<VaultFileTableData> {
     this.rowid = const Value.absent(),
   });
   VaultFileTableCompanion.insert({
-    required String id,
     required String vaultId,
     required String path,
     required VaultEntryType type,
@@ -1170,14 +1131,12 @@ class VaultFileTableCompanion extends UpdateCompanion<VaultFileTableData> {
     this.checksum = const Value.absent(),
     required DateTime indexedAt,
     this.rowid = const Value.absent(),
-  }) : id = Value(id),
-       vaultId = Value(vaultId),
+  }) : vaultId = Value(vaultId),
        path = Value(path),
        type = Value(type),
        category = Value(category),
        indexedAt = Value(indexedAt);
   static Insertable<VaultFileTableData> custom({
-    Expression<String>? id,
     Expression<String>? vaultId,
     Expression<String>? path,
     Expression<String>? type,
@@ -1189,7 +1148,6 @@ class VaultFileTableCompanion extends UpdateCompanion<VaultFileTableData> {
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
-      if (id != null) 'id': id,
       if (vaultId != null) 'vault_id': vaultId,
       if (path != null) 'path': path,
       if (type != null) 'type': type,
@@ -1203,7 +1161,6 @@ class VaultFileTableCompanion extends UpdateCompanion<VaultFileTableData> {
   }
 
   VaultFileTableCompanion copyWith({
-    Value<String>? id,
     Value<String>? vaultId,
     Value<String>? path,
     Value<VaultEntryType>? type,
@@ -1215,7 +1172,6 @@ class VaultFileTableCompanion extends UpdateCompanion<VaultFileTableData> {
     Value<int>? rowid,
   }) {
     return VaultFileTableCompanion(
-      id: id ?? this.id,
       vaultId: vaultId ?? this.vaultId,
       path: path ?? this.path,
       type: type ?? this.type,
@@ -1231,9 +1187,6 @@ class VaultFileTableCompanion extends UpdateCompanion<VaultFileTableData> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
     if (vaultId.present) {
       map['vault_id'] = Variable<String>(vaultId.value);
     }
@@ -1271,7 +1224,6 @@ class VaultFileTableCompanion extends UpdateCompanion<VaultFileTableData> {
   @override
   String toString() {
     return (StringBuffer('VaultFileTableCompanion(')
-          ..write('id: $id, ')
           ..write('vaultId: $vaultId, ')
           ..write('path: $path, ')
           ..write('type: $type, ')
@@ -1692,7 +1644,6 @@ typedef $$AppConfigTableTableProcessedTableManager =
     >;
 typedef $$VaultFileTableTableCreateCompanionBuilder =
     VaultFileTableCompanion Function({
-      required String id,
       required String vaultId,
       required String path,
       required VaultEntryType type,
@@ -1705,7 +1656,6 @@ typedef $$VaultFileTableTableCreateCompanionBuilder =
     });
 typedef $$VaultFileTableTableUpdateCompanionBuilder =
     VaultFileTableCompanion Function({
-      Value<String> id,
       Value<String> vaultId,
       Value<String> path,
       Value<VaultEntryType> type,
@@ -1726,11 +1676,6 @@ class $$VaultFileTableTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
   ColumnFilters<String> get vaultId => $composableBuilder(
     column: $table.vaultId,
     builder: (column) => ColumnFilters(column),
@@ -1783,11 +1728,6 @@ class $$VaultFileTableTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<String> get vaultId => $composableBuilder(
     column: $table.vaultId,
     builder: (column) => ColumnOrderings(column),
@@ -1838,9 +1778,6 @@ class $$VaultFileTableTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
   GeneratedColumn<String> get vaultId =>
       $composableBuilder(column: $table.vaultId, builder: (column) => column);
 
@@ -1905,7 +1842,6 @@ class $$VaultFileTableTableTableManager
               $$VaultFileTableTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
-                Value<String> id = const Value.absent(),
                 Value<String> vaultId = const Value.absent(),
                 Value<String> path = const Value.absent(),
                 Value<VaultEntryType> type = const Value.absent(),
@@ -1916,7 +1852,6 @@ class $$VaultFileTableTableTableManager
                 Value<DateTime> indexedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => VaultFileTableCompanion(
-                id: id,
                 vaultId: vaultId,
                 path: path,
                 type: type,
@@ -1929,7 +1864,6 @@ class $$VaultFileTableTableTableManager
               ),
           createCompanionCallback:
               ({
-                required String id,
                 required String vaultId,
                 required String path,
                 required VaultEntryType type,
@@ -1940,7 +1874,6 @@ class $$VaultFileTableTableTableManager
                 required DateTime indexedAt,
                 Value<int> rowid = const Value.absent(),
               }) => VaultFileTableCompanion.insert(
-                id: id,
                 vaultId: vaultId,
                 path: path,
                 type: type,

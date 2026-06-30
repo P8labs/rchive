@@ -57,8 +57,6 @@ class _VaultSelectionPageState extends State<VaultSelectionPage> {
     context.read<VaultBloc>().add(
       CreateVaultEvent(name: name, parentPath: selectedDirectory),
     );
-
-    await context.read<AppCubit>().initialize();
   }
 
   void onExistingVault() async {
@@ -68,7 +66,6 @@ class _VaultSelectionPageState extends State<VaultSelectionPage> {
       return;
     }
     context.read<VaultBloc>().add(OpenVaultEvent(selectedDirectory));
-    await context.read<AppCubit>().initialize(); // it will fetch default again
   }
 
   @override
@@ -76,15 +73,21 @@ class _VaultSelectionPageState extends State<VaultSelectionPage> {
     return Scaffold(
       body: SafeArea(
         child: BlocConsumer<VaultBloc, VaultState>(
-          listener: (context, state) {
-            if (state.error != null) {
-              showSnackBar(context, state.error!);
+          listener: (context, state) async {
+            if (state is VaultError) {
+              showSnackBar(context, state.message);
+            }
+
+            if (state is VaultInvokeInit) {
+              context.read<VaultBloc>().add(LoadVaultsEvent());
+              await context.read<AppCubit>().initialize();
             }
           },
           builder: (context, state) {
-            if (state.loading) {
+            if (state is VaultLoading) {
               return Loader();
             }
+
             return SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -181,74 +184,64 @@ class _VaultSelectionPageState extends State<VaultSelectionPage> {
                           child: const Text("Open Existing Vault"),
                         ),
                         const SizedBox(height: 12),
-                        Container(
-                          height: MediaQuery.of(context).size.height * 0.4,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            border: Border.all(width: 1),
-                          ),
-                          child: BlocConsumer<VaultBloc, VaultState>(
-                            listener: (context, state) {},
-                            builder: (context, state) {
-                              final vaults = state.vaults;
-                              return ListView.builder(
-                                itemCount: vaults.length,
-                                itemBuilder: (context, index) {
-                                  final vault = vaults[index];
-                                  return Card(
-                                    elevation: 0,
-                                    margin: const EdgeInsets.symmetric(
-                                      vertical: 6,
+                        if (state is LoadVaults)
+                          Container(
+                            height: MediaQuery.of(context).size.height * 0.4,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              border: Border.all(width: 1),
+                            ),
+                            child: ListView.builder(
+                              itemCount: state.vaults.length,
+                              itemBuilder: (context, index) {
+                                final vault = state.vaults[index];
+                                return Card(
+                                  elevation: 0,
+                                  margin: const EdgeInsets.symmetric(
+                                    vertical: 6,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    side: BorderSide(
+                                      color: Theme.of(
+                                        context,
+                                      ).dividerColor.withValues(alpha: 0.2),
                                     ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      side: BorderSide(
-                                        color: Theme.of(
-                                          context,
-                                        ).dividerColor.withValues(alpha: 0.2),
-                                      ),
+                                  ),
+                                  child: ListTile(
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 8,
                                     ),
-                                    child: ListTile(
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 8,
-                                          ),
-                                      leading: const Icon(
-                                        Icons.folder_outlined,
-                                      ),
-                                      title: Hero(
-                                        tag: vault.id,
-                                        child: Text(
-                                          vault.name,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                    leading: const Icon(Icons.folder_outlined),
+                                    title: Hero(
+                                      tag: vault.id,
+                                      child: Text(
+                                        vault.name,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
                                         ),
                                       ),
-                                      subtitle: Text(
-                                        DateFormat(
-                                          "MM/dd/yyyy",
-                                        ).format(vault.createdAt),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      trailing: const Icon(Icons.chevron_right),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      onTap: () {
-                                        context.read<AppCubit>().openVault(
-                                          vault,
-                                        );
-                                      },
                                     ),
-                                  );
-                                },
-                              );
-                            },
+                                    subtitle: Text(
+                                      DateFormat(
+                                        "MM/dd/yyyy",
+                                      ).format(vault.createdAt),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    trailing: const Icon(Icons.chevron_right),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    onTap: () {
+                                      context.read<AppCubit>().openVault(vault);
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ),
