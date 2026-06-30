@@ -13,7 +13,41 @@ Future<void> initDependencies() async {
     );
 
   _initVault();
+  _initNote();
   _initCore();
+}
+
+void _initNote() {
+  serviceLocator
+    ..registerLazySingleton<NotesRepository>(
+      () => NotesRepositoryImpl(
+        provider: serviceLocator<DatabaseProvider>(),
+        syncRepository: serviceLocator<VaultSyncRepository>(),
+      ),
+    )
+    // usecases
+    ..registerLazySingleton(() => CreateNote(serviceLocator<NotesRepository>()))
+    ..registerLazySingleton(() => DeleteNote(serviceLocator<NotesRepository>()))
+    ..registerLazySingleton(() => GetNote(serviceLocator<NotesRepository>()))
+    ..registerLazySingleton(() => GetNotes(serviceLocator<NotesRepository>()))
+    ..registerLazySingleton(() => MoveNote(serviceLocator<NotesRepository>()))
+    ..registerLazySingleton(() => ReadNote(serviceLocator<NotesRepository>()))
+    ..registerLazySingleton(() => RenameNote(serviceLocator<NotesRepository>()))
+    ..registerLazySingleton(() => TrashNote(serviceLocator<NotesRepository>()))
+    ..registerLazySingleton(() => WriteNote(serviceLocator<NotesRepository>()))
+    ..registerFactory(
+      () => NoteBloc(
+        getNotes: serviceLocator(),
+        getNote: serviceLocator(),
+        readNote: serviceLocator(),
+        createNote: serviceLocator(),
+        writeNote: serviceLocator(),
+        renameNote: serviceLocator(),
+        moveNote: serviceLocator(),
+        deleteNote: serviceLocator(),
+        trashNote: serviceLocator(),
+      ),
+    );
 }
 
 void _initVault() {
@@ -23,7 +57,7 @@ void _initVault() {
       () => VaultStorageDataSourceImpl(),
     )
     ..registerLazySingleton<VaultRegistryLocalDataSource>(
-      () => VaultRegistryLocalDataSourceImpl(serviceLocator<AppDatabase>()),
+      () => VaultRegistryDatabaseDataSourceImpl(serviceLocator<AppDatabase>()),
     )
     // repositories
     ..registerLazySingleton<VaultRepository>(

@@ -26,7 +26,7 @@ class VaultBloc extends Bloc<VaultEvent, VaultState> {
     required this._openVault,
     required this._forgetVault,
     required this._deleteVault,
-  }) : super(const VaultState()) {
+  }) : super(VaultInitial()) {
     on<LoadVaultsEvent>(_onLoadVaults);
     on<CreateVaultEvent>(_onCreateVault);
     on<OpenVaultEvent>(_onOpenVault);

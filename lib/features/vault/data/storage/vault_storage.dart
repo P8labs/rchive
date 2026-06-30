@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 abstract interface class VaultStorage {
-  String get location;
+  String get treeUri;
 
   /// Returns whether a file or directory exists.
   Future<bool> exists([String path = ""]);
@@ -10,7 +10,7 @@ abstract interface class VaultStorage {
   Future<List<VaultEntry>> list(String path);
 
   /// Creates a directory recursively.
-  Future<void> createDirectory(String path);
+  Future<String> createDirectory(String path);
 
   /// Reads a file.
   Future<Uint8List> read(String path);

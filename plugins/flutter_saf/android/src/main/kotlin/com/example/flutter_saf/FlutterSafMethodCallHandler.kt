@@ -72,8 +72,9 @@ class FlutterSafMethodCallHandler(
                     val path = call.argument<String>("path")!!
 
                     service.createDirectory(path)
+                    val uri = service.createDirectory(path)
 
-                    result.success(null)
+                    result.success(uri)
                 }
 
                 "delete" -> {

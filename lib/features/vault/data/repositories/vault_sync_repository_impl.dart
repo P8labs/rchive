@@ -23,14 +23,12 @@ class VaultSyncRepositoryImpl implements VaultSyncRepository {
   Future<Either<Failure, Unit>> sync() async {
     try {
       final entries = <VaultEntry>[];
-      await _scanDirectory('', entries);
+      await _scanDirectory(vault.name, entries);
 
-      final scannedPaths = entries.map((e) => e.path).toSet();
-
+      final scannedPaths = entries.map((e) => _relativePath(e.path)).toSet();
       for (final entry in entries) {
         await _upsert(entry);
       }
-
       await _cleanup(scannedPaths);
 
       return right(unit);
@@ -43,9 +41,7 @@ class VaultSyncRepositoryImpl implements VaultSyncRepository {
   Future<Either<Failure, Unit>> syncFile({required String path}) async {
     try {
       final parent = p.dirname(path);
-
       final entries = await storage.list(parent == '.' ? '' : parent);
-
       final entry = entries.where((e) => e.path == path).firstOrNull;
 
       if (entry == null) {
@@ -124,15 +120,17 @@ class VaultSyncRepositoryImpl implements VaultSyncRepository {
 
   Future<void> _upsert(VaultEntry entry) async {
     final vault = provider.currentVault!;
+    final relativePath = _relativePath(entry.path);
 
+    debugPrint('UPSERT: $relativePath');
     await database
         .into(database.vaultFileTable)
         .insertOnConflictUpdate(
           VaultFileTableCompanion(
             vaultId: Value(vault.id),
-            path: Value(entry.path),
+            path: Value(relativePath),
             type: Value(entry.type),
-            category: Value(_category(entry.path)),
+            category: Value(_category(relativePath)),
             size: Value(entry.size),
             lastModified: Value(entry.modifiedAt),
             indexedAt: Value(DateTime.now().toUtc()),
@@ -156,5 +154,25 @@ class VaultSyncRepositoryImpl implements VaultSyncRepository {
     }
 
     return VaultFileCategory.trash;
+  }
+
+  String _relativePath(String path) {
+    final root = vault.location;
+
+    if (root.isEmpty) {
+      return path;
+    }
+
+    if (path == root) {
+      return '';
+    }
+
+    final prefix = '$root/';
+
+    if (path.startsWith(prefix)) {
+      return path.substring(prefix.length);
+    }
+
+    return path;
   }
 }

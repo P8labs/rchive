@@ -66,11 +66,14 @@ class FlutterSafChannel {
     });
   }
 
-  static Future<void> createDirectory({
+  static Future<String> createDirectory({
     required String treeUri,
     required String path,
-  }) {
-    return _invoke<void>('createDirectory', {'treeUri': treeUri, 'path': path});
+  }) async {
+    return (await _invoke<String>('createDirectory', {
+      'treeUri': treeUri,
+      'path': path,
+    }))!;
   }
 
   static Future<void> delete({

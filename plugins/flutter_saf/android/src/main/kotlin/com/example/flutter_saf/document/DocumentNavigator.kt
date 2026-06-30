@@ -2,6 +2,8 @@ package com.example.flutter_saf.document
 
 import android.content.Context
 import android.net.Uri
+import android.provider.DocumentsContract
+import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import com.example.flutter_saf.exception.SafException
 import com.example.flutter_saf.util.MimeTypes
@@ -10,9 +12,17 @@ class DocumentNavigator(
     context: Context,
     treeUri: Uri,
 ) {
-    private val root: DocumentFile =
-        DocumentFile.fromTreeUri(context, treeUri)
+
+    private val root: DocumentFile = run {
+        val documentUri = DocumentsContract.buildDocumentUriUsingTree(
+            treeUri,
+            DocumentsContract.getTreeDocumentId(treeUri),
+        )
+
+        DocumentFile.fromTreeUri(context, documentUri)
             ?: throw SafException.InvalidTreeUri(treeUri.toString())
+    }
+
 
     fun resolve(path: String): DocumentFile? {
         if (path.isBlank()) {
@@ -86,10 +96,8 @@ class DocumentNavigator(
             )
     }
 
-    private fun segments(path: String): List<String> {
-        return path
-            .trim('/')
+    private fun segments(path: String): List<String> =
+        path.trim('/')
             .split('/')
             .filter { it.isNotBlank() }
-    }
 }

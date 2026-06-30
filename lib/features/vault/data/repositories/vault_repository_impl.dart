@@ -5,7 +5,7 @@ import 'package:rchive/core/error/exceptions.dart';
 import 'package:rchive/core/error/failure.dart';
 import 'package:rchive/core/mixins/repository_mixin.dart';
 
-import 'package:rchive/features/vault/data/datasources/vault_registry_local_datasource.dart';
+import 'package:rchive/features/vault/data/datasources/vault_registry_database_datasource.dart';
 import 'package:rchive/features/vault/data/datasources/vault_storage_datasource.dart';
 
 import 'package:rchive/features/vault/domain/repository/vault_repository.dart';
@@ -34,7 +34,11 @@ class VaultRepositoryImpl with RepositoryMixin implements VaultRepository {
   @override
   Future<Either<Failure, Vault>> openVault({required String path}) async {
     return guard(() async {
-      final vault = await _filesystem.open(treeUri: path);
+      final split = splitTreeUri(path);
+      final vault = await _filesystem.open(
+        treeUri: split.treeUri,
+        location: split.rootPath,
+      );
       final existing = await _registry.getById(vault.id);
 
       if (existing == null) {
@@ -65,10 +69,42 @@ class VaultRepositoryImpl with RepositoryMixin implements VaultRepository {
       if (vault == null) {
         throw LocalException('Vault not found.');
       }
-      await _filesystem.delete(treeUri: vault.location);
+      await _filesystem.delete(
+        treeUri: vault.treeUri,
+        location: vault.location,
+      );
       await _registry.forget(vaultId);
 
       return unit;
     });
   }
+}
+
+({String treeUri, String rootPath}) splitTreeUri(String treeUri) {
+  final uri = Uri.parse(treeUri);
+
+  final treeIndex = uri.pathSegments.indexOf('tree');
+  if (treeIndex == -1 || treeIndex + 1 >= uri.pathSegments.length) {
+    throw ArgumentError('Invalid SAF tree URI.');
+  }
+
+  final treeId = Uri.decodeComponent(uri.pathSegments[treeIndex + 1]);
+  // primary:Download/Vs/Demo
+
+  final slash = treeId.lastIndexOf('/');
+  if (slash == -1) {
+    return (treeUri: treeUri, rootPath: '');
+  }
+
+  final parentTreeId = treeId.substring(0, slash);
+  final rootPath = treeId.substring(slash + 1);
+
+  final rootTreeUri = uri.replace(
+    pathSegments: [
+      ...uri.pathSegments.take(treeIndex + 1),
+      Uri.encodeComponent(parentTreeId),
+    ],
+  );
+
+  return (treeUri: rootTreeUri.toString(), rootPath: rootPath);
 }

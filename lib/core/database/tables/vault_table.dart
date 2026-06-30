@@ -6,12 +6,15 @@ class VaultTable extends Table {
 
   TextColumn get name => text()();
 
+  /// Vault folder name
+  TextColumn get location => text()();
+
   /// Filesystem:
   ///   /storage/emulated/0/Documents/MyVault
   ///
   /// SAF:
   ///   content://com.android.externalstorage.documents/tree/...
-  TextColumn get location => text().unique()();
+  TextColumn get treeUri => text().unique()();
 
   /// filesystem | saf
   TextColumn get storageType => text()();

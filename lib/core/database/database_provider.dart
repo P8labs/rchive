@@ -47,7 +47,10 @@ class DatabaseProviderImpl implements DatabaseProvider {
     _currentVault = vault;
 
     _currentStorage = switch (vault.storageType) {
-      VaultStorageType.saf => SafStorage(treeUri: vault.location),
+      VaultStorageType.saf => SafStorage(
+        treeUri: vault.treeUri,
+        root: vault.location,
+      ),
       // TODO: Handle this case.
       VaultStorageType.filesystem => throw UnimplementedError(),
     };
@@ -77,6 +80,7 @@ class DatabaseProviderImpl implements DatabaseProvider {
       name: vault.name,
       location: vault.location,
       storageType: VaultStorageType.saf,
+      treeUri: vault.treeUri,
       version: vault.version,
       createdAt: vault.createdAt,
       lastOpenedAt: vault.lastOpenedAt,

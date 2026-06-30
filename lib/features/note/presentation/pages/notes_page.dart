@@ -2,10 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rchive/core/comman/state/app_cubit.dart';
 import 'package:rchive/core/comman/utils/show_snackbar.dart';
+import 'package:rchive/features/note/presentation/bloc/note_bloc.dart';
 import 'package:rchive/features/note/presentation/pages/new_note_page.dart';
+import 'package:rchive/features/note/presentation/widgets/note_tree_view.dart';
 
-class NotesPage extends StatelessWidget {
+class NotesPage extends StatefulWidget {
   const NotesPage({super.key});
+
+  @override
+  State<NotesPage> createState() => _NotesPageState();
+}
+
+class _NotesPageState extends State<NotesPage> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<NoteBloc>().add(LoadNotesEvent());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +45,12 @@ class NotesPage extends StatelessWidget {
             title: Hero(tag: currentVault.id, child: Text(currentVault.name)),
             actions: [
               IconButton(
-                onPressed: () =>
-                    Navigator.of(context).push(NewNotePage.route()),
-                icon: Icon(Icons.add_circle_outline),
+                onPressed: () async {
+                  await context.read<AppCubit>().syncVault();
+                  if (!context.mounted) return;
+                  context.read<NoteBloc>().add(LoadNotesEvent());
+                },
+                icon: Icon(Icons.sync),
               ),
               IconButton(
                 onPressed: onLogout,
@@ -42,7 +58,41 @@ class NotesPage extends StatelessWidget {
               ),
             ],
           ),
-          body: Center(),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              Navigator.push(context, NewNotePage.route(folder: ''));
+            },
+            child: const Icon(Icons.add),
+          ),
+          body: BlocBuilder<NoteBloc, NoteState>(
+            builder: (context, state) {
+              if (state is NoteLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (state is! NotesLoaded) {
+                return const SizedBox.shrink();
+              }
+
+              final tree = buildNoteTree(state.notes);
+
+              return NoteTreeView(
+                root: tree,
+                onOpenNote: (note) {
+                  context.read<NoteBloc>().add(OpenNoteEvent(note.path));
+                },
+                onCreateNote: (folder) {
+                  // Navigator.push(
+                  //   context,
+                  //   NewNotePage.route(folder: folder.path),
+                  // );
+                },
+                onCreateFolder: (folder) {
+                  // TODO: Show create folder dialog.
+                },
+              );
+            },
+          ),
         );
       },
     );

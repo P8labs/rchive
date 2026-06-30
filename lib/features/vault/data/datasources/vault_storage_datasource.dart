@@ -8,27 +8,29 @@ import 'package:uuid/uuid.dart';
 
 abstract interface class VaultStorageDataSource {
   Future<Vault> create({required String name, required String treeUri});
-  Future<Vault> open({required String treeUri});
-  Future<void> delete({required String treeUri});
-  Future<bool> exists({required String treeUri});
+  Future<Vault> open({required String treeUri, required String location});
+  Future<void> delete({required String treeUri, required String location});
+  Future<bool> exists({required String treeUri, required String location});
 }
 
 class VaultStorageDataSourceImpl implements VaultStorageDataSource {
   static const _uuid = Uuid();
 
-  VaultStorage storage(String treeUri) {
-    return SafStorage(treeUri: treeUri);
+  VaultStorage storage(String treeUri, [String root = ""]) {
+    return SafStorage(treeUri: treeUri, root: root);
   }
 
   @override
   Future<Vault> create({required String name, required String treeUri}) async {
-    final rVaultStorage = storage(treeUri);
-    if (await rVaultStorage.exists(name)) {
+    final rootStorage = storage(treeUri);
+
+    if (await rootStorage.exists(name)) {
       throw LocalException('A vault with this name already exists.');
     }
-    await rVaultStorage.createDirectory(name);
 
-    final vaultStorage = storage("$treeUri/$name");
+    await rootStorage.createDirectory(name);
+
+    final vaultStorage = storage(treeUri, name);
 
     await vaultStorage.createDirectory(VaultConstants.notesDirectory);
     await vaultStorage.createDirectory(VaultConstants.attachmentsDirectory);
@@ -37,6 +39,7 @@ class VaultStorageDataSourceImpl implements VaultStorageDataSource {
     final metadata = VaultMetadataModel(
       id: _uuid.v4(),
       name: name,
+      treeUri: vaultStorage.treeUri,
       location: name,
       storageType: VaultStorageType.saf,
       version: VaultConstants.currentVersion,
@@ -52,8 +55,11 @@ class VaultStorageDataSourceImpl implements VaultStorageDataSource {
   }
 
   @override
-  Future<Vault> open({required String treeUri}) async {
-    final vaultStorage = storage(treeUri);
+  Future<Vault> open({
+    required String treeUri,
+    required String location,
+  }) async {
+    final vaultStorage = storage(treeUri, location);
 
     await validate(vaultStorage);
 
@@ -66,8 +72,11 @@ class VaultStorageDataSourceImpl implements VaultStorageDataSource {
   }
 
   @override
-  Future<void> delete({required String treeUri}) async {
-    final vaultStorage = storage(treeUri);
+  Future<void> delete({
+    required String treeUri,
+    required String location,
+  }) async {
+    final vaultStorage = storage(treeUri, location);
     if (!await vaultStorage.exists()) {
       throw LocalException('Vault not found.');
     }
@@ -76,8 +85,11 @@ class VaultStorageDataSourceImpl implements VaultStorageDataSource {
   }
 
   @override
-  Future<bool> exists({required String treeUri}) async {
-    final vaultStorage = storage(treeUri);
+  Future<bool> exists({
+    required String treeUri,
+    required String location,
+  }) async {
+    final vaultStorage = storage(treeUri, location);
     return !await vaultStorage.exists();
   }
 

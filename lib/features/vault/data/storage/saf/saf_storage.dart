@@ -1,17 +1,20 @@
 import 'dart:typed_data';
-
+import 'package:path/path.dart' as p;
 import 'package:flutter_saf/flutter_saf.dart';
 import 'package:rchive/features/vault/data/storage/vault_storage.dart';
 
 final class SafStorage implements VaultStorage {
-  final String treeUri;
-
-  const SafStorage({required this.treeUri});
+  final String _treeUri;
+  final String root;
+  const SafStorage({required this._treeUri, this.root = ""});
 
   @override
   Future<bool> exists([String path = ""]) {
     return FlutterSafChannel.exists(treeUri: treeUri, path: path);
   }
+
+  @override
+  String get treeUri => _treeUri;
 
   @override
   Future<List<VaultEntry>> list(String path) async {
@@ -34,15 +37,18 @@ final class SafStorage implements VaultStorage {
   }
 
   @override
-  Future<void> createDirectory(String path) {
-    return FlutterSafChannel.createDirectory(treeUri: treeUri, path: path);
+  Future<String> createDirectory(String path) {
+    return FlutterSafChannel.createDirectory(
+      treeUri: treeUri,
+      path: _resolve(path),
+    );
   }
 
   @override
   Future<void> delete(String path, {bool recursive = false}) {
     return FlutterSafChannel.delete(
       treeUri: treeUri,
-      path: path,
+      path: _resolve(path),
       recursive: recursive,
     );
   }
@@ -51,7 +57,7 @@ final class SafStorage implements VaultStorage {
   Future<void> rename(String path, String newName) {
     return FlutterSafChannel.rename(
       treeUri: treeUri,
-      path: path,
+      path: _resolve(path),
       newName: newName,
     );
   }
@@ -63,14 +69,22 @@ final class SafStorage implements VaultStorage {
 
   @override
   Future<Uint8List> read(String path) {
-    return FlutterSafChannel.read(treeUri: treeUri, path: path);
+    return FlutterSafChannel.read(treeUri: treeUri, path: _resolve(path));
   }
 
   @override
   Future<void> write(String path, Uint8List bytes) {
-    return FlutterSafChannel.write(treeUri: treeUri, path: path, bytes: bytes);
+    return FlutterSafChannel.write(
+      treeUri: treeUri,
+      path: _resolve(path),
+      bytes: bytes,
+    );
   }
 
-  @override
-  String get location => treeUri;
+  String _resolve(String path) {
+    if (root.isEmpty) {
+      return path;
+    }
+    return p.join(root, path);
+  }
 }

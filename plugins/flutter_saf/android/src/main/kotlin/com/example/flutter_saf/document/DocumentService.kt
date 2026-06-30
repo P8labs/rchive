@@ -76,8 +76,9 @@ class DocumentService(
         } ?: throw SafException.OperationFailed("write", path)
     }
 
-    fun createDirectory(path: String) {
-        navigator.ensureDirectory(path)
+    fun createDirectory(path: String): String {
+        val directory = navigator.ensureDirectory(path)
+         return directory.uri.toString()
     }
 
     fun delete(

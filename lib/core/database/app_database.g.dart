@@ -38,6 +38,17 @@ class $VaultTableTable extends VaultTable
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
+  );
+  static const VerificationMeta _treeUriMeta = const VerificationMeta(
+    'treeUri',
+  );
+  @override
+  late final GeneratedColumn<String> treeUri = GeneratedColumn<String>(
+    'tree_uri',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
   );
   static const VerificationMeta _storageTypeMeta = const VerificationMeta(
@@ -89,6 +100,7 @@ class $VaultTableTable extends VaultTable
     id,
     name,
     location,
+    treeUri,
     storageType,
     version,
     createdAt,
@@ -124,6 +136,14 @@ class $VaultTableTable extends VaultTable
       );
     } else if (isInserting) {
       context.missing(_locationMeta);
+    }
+    if (data.containsKey('tree_uri')) {
+      context.handle(
+        _treeUriMeta,
+        treeUri.isAcceptableOrUnknown(data['tree_uri']!, _treeUriMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_treeUriMeta);
     }
     if (data.containsKey('storage_type')) {
       context.handle(
@@ -182,6 +202,10 @@ class $VaultTableTable extends VaultTable
         DriftSqlType.string,
         data['${effectivePrefix}location'],
       )!,
+      treeUri: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tree_uri'],
+      )!,
       storageType: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}storage_type'],
@@ -211,12 +235,15 @@ class VaultTableData extends DataClass implements Insertable<VaultTableData> {
   final String id;
   final String name;
 
+  /// Vault folder name
+  final String location;
+
   /// Filesystem:
   ///   /storage/emulated/0/Documents/MyVault
   ///
   /// SAF:
   ///   content://com.android.externalstorage.documents/tree/...
-  final String location;
+  final String treeUri;
 
   /// filesystem | saf
   final String storageType;
@@ -227,6 +254,7 @@ class VaultTableData extends DataClass implements Insertable<VaultTableData> {
     required this.id,
     required this.name,
     required this.location,
+    required this.treeUri,
     required this.storageType,
     required this.version,
     required this.createdAt,
@@ -238,6 +266,7 @@ class VaultTableData extends DataClass implements Insertable<VaultTableData> {
     map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
     map['location'] = Variable<String>(location);
+    map['tree_uri'] = Variable<String>(treeUri);
     map['storage_type'] = Variable<String>(storageType);
     map['version'] = Variable<int>(version);
     map['created_at'] = Variable<DateTime>(createdAt);
@@ -252,6 +281,7 @@ class VaultTableData extends DataClass implements Insertable<VaultTableData> {
       id: Value(id),
       name: Value(name),
       location: Value(location),
+      treeUri: Value(treeUri),
       storageType: Value(storageType),
       version: Value(version),
       createdAt: Value(createdAt),
@@ -270,6 +300,7 @@ class VaultTableData extends DataClass implements Insertable<VaultTableData> {
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       location: serializer.fromJson<String>(json['location']),
+      treeUri: serializer.fromJson<String>(json['treeUri']),
       storageType: serializer.fromJson<String>(json['storageType']),
       version: serializer.fromJson<int>(json['version']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -283,6 +314,7 @@ class VaultTableData extends DataClass implements Insertable<VaultTableData> {
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
       'location': serializer.toJson<String>(location),
+      'treeUri': serializer.toJson<String>(treeUri),
       'storageType': serializer.toJson<String>(storageType),
       'version': serializer.toJson<int>(version),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -294,6 +326,7 @@ class VaultTableData extends DataClass implements Insertable<VaultTableData> {
     String? id,
     String? name,
     String? location,
+    String? treeUri,
     String? storageType,
     int? version,
     DateTime? createdAt,
@@ -302,6 +335,7 @@ class VaultTableData extends DataClass implements Insertable<VaultTableData> {
     id: id ?? this.id,
     name: name ?? this.name,
     location: location ?? this.location,
+    treeUri: treeUri ?? this.treeUri,
     storageType: storageType ?? this.storageType,
     version: version ?? this.version,
     createdAt: createdAt ?? this.createdAt,
@@ -312,6 +346,7 @@ class VaultTableData extends DataClass implements Insertable<VaultTableData> {
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
       location: data.location.present ? data.location.value : this.location,
+      treeUri: data.treeUri.present ? data.treeUri.value : this.treeUri,
       storageType: data.storageType.present
           ? data.storageType.value
           : this.storageType,
@@ -329,6 +364,7 @@ class VaultTableData extends DataClass implements Insertable<VaultTableData> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('location: $location, ')
+          ..write('treeUri: $treeUri, ')
           ..write('storageType: $storageType, ')
           ..write('version: $version, ')
           ..write('createdAt: $createdAt, ')
@@ -342,6 +378,7 @@ class VaultTableData extends DataClass implements Insertable<VaultTableData> {
     id,
     name,
     location,
+    treeUri,
     storageType,
     version,
     createdAt,
@@ -354,6 +391,7 @@ class VaultTableData extends DataClass implements Insertable<VaultTableData> {
           other.id == this.id &&
           other.name == this.name &&
           other.location == this.location &&
+          other.treeUri == this.treeUri &&
           other.storageType == this.storageType &&
           other.version == this.version &&
           other.createdAt == this.createdAt &&
@@ -364,6 +402,7 @@ class VaultTableCompanion extends UpdateCompanion<VaultTableData> {
   final Value<String> id;
   final Value<String> name;
   final Value<String> location;
+  final Value<String> treeUri;
   final Value<String> storageType;
   final Value<int> version;
   final Value<DateTime> createdAt;
@@ -373,6 +412,7 @@ class VaultTableCompanion extends UpdateCompanion<VaultTableData> {
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.location = const Value.absent(),
+    this.treeUri = const Value.absent(),
     this.storageType = const Value.absent(),
     this.version = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -383,6 +423,7 @@ class VaultTableCompanion extends UpdateCompanion<VaultTableData> {
     this.id = const Value.absent(),
     required String name,
     required String location,
+    required String treeUri,
     required String storageType,
     required int version,
     required DateTime createdAt,
@@ -390,6 +431,7 @@ class VaultTableCompanion extends UpdateCompanion<VaultTableData> {
     this.rowid = const Value.absent(),
   }) : name = Value(name),
        location = Value(location),
+       treeUri = Value(treeUri),
        storageType = Value(storageType),
        version = Value(version),
        createdAt = Value(createdAt);
@@ -397,6 +439,7 @@ class VaultTableCompanion extends UpdateCompanion<VaultTableData> {
     Expression<String>? id,
     Expression<String>? name,
     Expression<String>? location,
+    Expression<String>? treeUri,
     Expression<String>? storageType,
     Expression<int>? version,
     Expression<DateTime>? createdAt,
@@ -407,6 +450,7 @@ class VaultTableCompanion extends UpdateCompanion<VaultTableData> {
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (location != null) 'location': location,
+      if (treeUri != null) 'tree_uri': treeUri,
       if (storageType != null) 'storage_type': storageType,
       if (version != null) 'version': version,
       if (createdAt != null) 'created_at': createdAt,
@@ -419,6 +463,7 @@ class VaultTableCompanion extends UpdateCompanion<VaultTableData> {
     Value<String>? id,
     Value<String>? name,
     Value<String>? location,
+    Value<String>? treeUri,
     Value<String>? storageType,
     Value<int>? version,
     Value<DateTime>? createdAt,
@@ -429,6 +474,7 @@ class VaultTableCompanion extends UpdateCompanion<VaultTableData> {
       id: id ?? this.id,
       name: name ?? this.name,
       location: location ?? this.location,
+      treeUri: treeUri ?? this.treeUri,
       storageType: storageType ?? this.storageType,
       version: version ?? this.version,
       createdAt: createdAt ?? this.createdAt,
@@ -448,6 +494,9 @@ class VaultTableCompanion extends UpdateCompanion<VaultTableData> {
     }
     if (location.present) {
       map['location'] = Variable<String>(location.value);
+    }
+    if (treeUri.present) {
+      map['tree_uri'] = Variable<String>(treeUri.value);
     }
     if (storageType.present) {
       map['storage_type'] = Variable<String>(storageType.value);
@@ -473,6 +522,7 @@ class VaultTableCompanion extends UpdateCompanion<VaultTableData> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('location: $location, ')
+          ..write('treeUri: $treeUri, ')
           ..write('storageType: $storageType, ')
           ..write('version: $version, ')
           ..write('createdAt: $createdAt, ')
@@ -1260,6 +1310,7 @@ typedef $$VaultTableTableCreateCompanionBuilder =
       Value<String> id,
       required String name,
       required String location,
+      required String treeUri,
       required String storageType,
       required int version,
       required DateTime createdAt,
@@ -1271,6 +1322,7 @@ typedef $$VaultTableTableUpdateCompanionBuilder =
       Value<String> id,
       Value<String> name,
       Value<String> location,
+      Value<String> treeUri,
       Value<String> storageType,
       Value<int> version,
       Value<DateTime> createdAt,
@@ -1299,6 +1351,11 @@ class $$VaultTableTableFilterComposer
 
   ColumnFilters<String> get location => $composableBuilder(
     column: $table.location,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get treeUri => $composableBuilder(
+    column: $table.treeUri,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1347,6 +1404,11 @@ class $$VaultTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get treeUri => $composableBuilder(
+    column: $table.treeUri,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get storageType => $composableBuilder(
     column: $table.storageType,
     builder: (column) => ColumnOrderings(column),
@@ -1385,6 +1447,9 @@ class $$VaultTableTableAnnotationComposer
 
   GeneratedColumn<String> get location =>
       $composableBuilder(column: $table.location, builder: (column) => column);
+
+  GeneratedColumn<String> get treeUri =>
+      $composableBuilder(column: $table.treeUri, builder: (column) => column);
 
   GeneratedColumn<String> get storageType => $composableBuilder(
     column: $table.storageType,
@@ -1437,6 +1502,7 @@ class $$VaultTableTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String> location = const Value.absent(),
+                Value<String> treeUri = const Value.absent(),
                 Value<String> storageType = const Value.absent(),
                 Value<int> version = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -1446,6 +1512,7 @@ class $$VaultTableTableTableManager
                 id: id,
                 name: name,
                 location: location,
+                treeUri: treeUri,
                 storageType: storageType,
                 version: version,
                 createdAt: createdAt,
@@ -1457,6 +1524,7 @@ class $$VaultTableTableTableManager
                 Value<String> id = const Value.absent(),
                 required String name,
                 required String location,
+                required String treeUri,
                 required String storageType,
                 required int version,
                 required DateTime createdAt,
@@ -1466,6 +1534,7 @@ class $$VaultTableTableTableManager
                 id: id,
                 name: name,
                 location: location,
+                treeUri: treeUri,
                 storageType: storageType,
                 version: version,
                 createdAt: createdAt,

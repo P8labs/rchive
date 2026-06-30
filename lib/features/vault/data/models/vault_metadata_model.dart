@@ -11,6 +11,7 @@ class VaultMetadataModel extends Vault {
     required super.id,
     required super.name,
     required super.location,
+    required super.treeUri,
     required super.storageType,
     required super.version,
     required super.createdAt,
@@ -22,6 +23,7 @@ class VaultMetadataModel extends Vault {
       id: vault.id,
       name: vault.name,
       location: vault.location,
+      treeUri: vault.treeUri,
       storageType: vault.storageType,
       version: vault.version,
       createdAt: vault.createdAt,
@@ -30,15 +32,15 @@ class VaultMetadataModel extends Vault {
   }
 
   factory VaultMetadataModel.fromJson({
-    required String location,
     required VaultStorageType storageType,
     required Map<String, dynamic> json,
   }) {
     return VaultMetadataModel(
       id: json['id'] as String,
       name: json['name'] as String,
-      location: location,
+      location: json['location'],
       storageType: storageType,
+      treeUri: json['treeUri'],
       version: json['version'] as int,
       createdAt: DateTime.parse(json['createdAt'] as String),
       lastOpenedAt: json['lastOpenedAt'] == null
@@ -52,6 +54,8 @@ class VaultMetadataModel extends Vault {
       'id': id,
       'name': name,
       'version': version,
+      'location': location,
+      'treeUri': treeUri,
       'createdAt': createdAt.toUtc().toIso8601String(),
       'lastOpenedAt': lastOpenedAt?.toUtc().toIso8601String(),
     };
@@ -71,11 +75,7 @@ class VaultMetadataModel extends Vault {
   }) async {
     final raw = await vaultStorage.read(VaultConstants.metadataFile);
     final json = jsonDecode(utf8.decode(raw)) as Map<String, dynamic>;
-    return VaultMetadataModel.fromJson(
-      location: vaultStorage.location,
-      storageType: storageType,
-      json: json,
-    );
+    return VaultMetadataModel.fromJson(storageType: storageType, json: json);
   }
 
   Vault toEntity() {
@@ -85,6 +85,7 @@ class VaultMetadataModel extends Vault {
       location: location,
       storageType: storageType,
       version: version,
+      treeUri: treeUri,
       createdAt: createdAt,
       lastOpenedAt: lastOpenedAt,
     );

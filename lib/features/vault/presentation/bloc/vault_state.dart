@@ -1,9 +1,11 @@
 part of 'vault_bloc.dart';
 
 @immutable
-class VaultState {
+sealed class VaultState {
   const VaultState();
 }
+
+final class VaultInitial extends VaultState {}
 
 final class VaultLoading extends VaultState {}
 

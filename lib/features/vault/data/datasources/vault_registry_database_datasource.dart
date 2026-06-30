@@ -12,10 +12,11 @@ abstract interface class VaultRegistryLocalDataSource {
   Future<void> forget(String id);
 }
 
-class VaultRegistryLocalDataSourceImpl implements VaultRegistryLocalDataSource {
+class VaultRegistryDatabaseDataSourceImpl
+    implements VaultRegistryLocalDataSource {
   final AppDatabase database;
 
-  VaultRegistryLocalDataSourceImpl(this.database);
+  VaultRegistryDatabaseDataSourceImpl(this.database);
 
   @override
   Future<List<Vault>> getAll() async {
@@ -43,6 +44,7 @@ class VaultRegistryLocalDataSourceImpl implements VaultRegistryLocalDataSource {
           VaultTableCompanion.insert(
             id: Value(vault.id),
             name: vault.name,
+            treeUri: vault.treeUri,
             location: vault.location,
             storageType: vault.storageType.name,
             version: vault.version,

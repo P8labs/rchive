@@ -36,6 +36,7 @@ class AppCubit extends Cubit<AppState> {
     try {
       await _databaseProvider.openVault(vault);
       final sync = await _syncVault(NoParams());
+
       sync.fold((failure) => throw Exception(failure.message), (_) {});
       await _databaseProvider.syncAppConfig(
         _databaseProvider.appConfig.copyWith(defaultVaultId: vault.id),
@@ -53,6 +54,24 @@ class AppCubit extends Cubit<AppState> {
         _databaseProvider.appConfig.copyWith(defaultVaultId: ""),
       );
       emit(const AppReady());
+    } catch (e) {
+      emit(AppFailure(e.toString()));
+    }
+  }
+
+  Future<void> syncVault() async {
+    try {
+      final vault = await _databaseProvider.getDefaultVault();
+
+      if (vault == null) {
+        emit(const AppReady());
+        return;
+      }
+      await _databaseProvider.openVault(vault);
+      final sync = await _syncVault(NoParams());
+
+      sync.fold((failure) => throw Exception(failure.message), (_) {});
+      emit(AppReady(currentVault: vault));
     } catch (e) {
       emit(AppFailure(e.toString()));
     }

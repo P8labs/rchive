@@ -4,14 +4,11 @@ class Vault {
   final String id;
   final String name;
 
-  /// Platform-specific root identifier.
-  ///
-  /// Filesystem:
-  ///   /home/user/Documents/MyVault
-  ///
+  final String location;
+
   /// Android SAF:
   ///   content://com.android.externalstorage.documents/tree/...
-  final String location;
+  final String treeUri;
 
   final VaultStorageType storageType;
 
@@ -24,6 +21,7 @@ class Vault {
     required this.id,
     required this.name,
     required this.location,
+    required this.treeUri,
     required this.storageType,
     required this.version,
     required this.createdAt,
@@ -34,6 +32,7 @@ class Vault {
     String? id,
     String? name,
     String? location,
+    String? treeUri,
     VaultStorageType? storageType,
     int? version,
     DateTime? createdAt,
@@ -42,6 +41,7 @@ class Vault {
     return Vault(
       id: id ?? this.id,
       name: name ?? this.name,
+      treeUri: treeUri ?? this.treeUri,
       location: location ?? this.location,
       storageType: storageType ?? this.storageType,
       version: version ?? this.version,
