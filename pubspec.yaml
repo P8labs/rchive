@@ -54,6 +54,7 @@ dependencies:
   flutter_saf:
     path: plugins/flutter_saf
   intl: ^0.20.3
+  crypto: ^3.0.7
 
 dev_dependencies:
   flutter_test:

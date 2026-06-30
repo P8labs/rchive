@@ -43,7 +43,7 @@ class VaultRegistryLocalDataSourceImpl implements VaultRegistryLocalDataSource {
           VaultTableCompanion.insert(
             name: vault.name,
             location: vault.location,
-            storageType: "saf",
+            storageType: vault.storageType.name,
             version: vault.version,
             createdAt: vault.createdAt,
             lastOpenedAt: Value(vault.lastOpenedAt),
@@ -59,7 +59,7 @@ class VaultRegistryLocalDataSourceImpl implements VaultRegistryLocalDataSource {
       VaultTableCompanion(
         name: Value(vault.name),
         location: Value(vault.location),
-        storageType: Value("saf"),
+        storageType: Value(vault.storageType.name),
         version: Value(vault.version),
         lastOpenedAt: Value(vault.lastOpenedAt),
       ),

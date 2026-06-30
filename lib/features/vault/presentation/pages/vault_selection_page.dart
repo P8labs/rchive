@@ -68,7 +68,7 @@ class _VaultSelectionPageState extends State<VaultSelectionPage> {
       return;
     }
     context.read<VaultBloc>().add(OpenVaultEvent(selectedDirectory));
-    context.read<AppCubit>().initialize(); // it will fetch default again
+    await context.read<AppCubit>().initialize(); // it will fetch default again
   }
 
   @override
@@ -116,24 +116,48 @@ class _VaultSelectionPageState extends State<VaultSelectionPage> {
                           },
                           controller: _vaultNameController,
                           decoration: InputDecoration(
+                            filled: true,
                             errorText:
                                 _vaultNameController.text.isEmpty || isValid
                                 ? null
                                 : "Vault name must be 3-64 characters and cannot contain \\ / : * ? \" < > |",
                             hintText: "Enter Vault Name",
-                            enabledBorder: OutlineInputBorder(
+                            errorMaxLines: 2,
+                            focusedErrorBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(12),
-                              ),
-                              borderSide: BorderSide.none,
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(12),
+                                top: Radius.circular(8),
                               ),
                               borderSide: BorderSide(
                                 width: 1,
-                                color: AppPallete.accent,
+                                color: Colors.red,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(8),
+                              ),
+                              borderSide: BorderSide(
+                                color: AppPallete.surface,
+                                width: 1,
+                              ),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(8),
+                              ),
+                              borderSide: BorderSide(
+                                color: AppPallete.surface,
+                                width: 1,
+                              ),
+                            ),
+
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(8),
+                              ),
+                              borderSide: BorderSide(
+                                width: 1,
+                                color: AppPallete.border,
                               ),
                             ),
                           ),

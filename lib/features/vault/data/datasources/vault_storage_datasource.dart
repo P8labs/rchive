@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:rchive/core/comman/entities/vault.dart';
 import 'package:rchive/core/error/exceptions.dart';
 import 'package:rchive/features/vault/constants/vault_constants.dart';
@@ -25,21 +22,17 @@ class VaultStorageDataSourceImpl implements VaultStorageDataSource {
 
   @override
   Future<Vault> create({required String name, required String treeUri}) async {
-    final vaultStorage = storage(treeUri);
-    if (await vaultStorage.exists(name)) {
+    final rVaultStorage = storage(treeUri);
+    if (await rVaultStorage.exists(name)) {
       throw LocalException('A vault with this name already exists.');
     }
+    await rVaultStorage.createDirectory(name);
 
-    await vaultStorage.createDirectory(name);
-    await vaultStorage.createDirectory(
-      '$name/${VaultConstants.notesDirectory}',
-    );
-    await vaultStorage.createDirectory(
-      '$name/${VaultConstants.attachmentsDirectory}',
-    );
-    await vaultStorage.createDirectory(
-      '$name/${VaultConstants.trashDirectory}',
-    );
+    final vaultStorage = storage("$treeUri/$name");
+
+    await vaultStorage.createDirectory(VaultConstants.notesDirectory);
+    await vaultStorage.createDirectory(VaultConstants.attachmentsDirectory);
+    await vaultStorage.createDirectory(VaultConstants.trashDirectory);
 
     final metadata = VaultMetadataModel(
       id: _uuid.v4(),
@@ -50,13 +43,9 @@ class VaultStorageDataSourceImpl implements VaultStorageDataSource {
       createdAt: DateTime.now().toUtc(),
     );
 
-    await vaultStorage.write(
-      '$name/${VaultConstants.metadataFile}',
-      Uint8List.fromList(
-        utf8.encode(
-          const JsonEncoder.withIndent('  ').convert(metadata.toJson()),
-        ),
-      ),
+    await metadata.save(
+      storageType: VaultStorageType.saf,
+      vaultStorage: vaultStorage,
     );
 
     return metadata;
@@ -67,6 +56,7 @@ class VaultStorageDataSourceImpl implements VaultStorageDataSource {
     final vaultStorage = storage(treeUri);
 
     await validate(vaultStorage);
+
     final metadata = await VaultMetadataModel.load(
       vaultStorage: vaultStorage,
       storageType: VaultStorageType.saf,

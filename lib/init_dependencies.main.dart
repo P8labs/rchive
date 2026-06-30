@@ -18,10 +18,6 @@ Future<void> initDependencies() async {
 
 void _initVault() {
   serviceLocator
-    // todo remove above!/
-    // ..registerLazySingleton<VaultFilesystemDataSource>(
-    //   () => VaultFilesystemDataSourceImpl(),
-    // )
     // data sources
     ..registerLazySingleton<VaultStorageDataSource>(
       () => VaultStorageDataSourceImpl(),
@@ -36,6 +32,10 @@ void _initVault() {
         registry: serviceLocator<VaultRegistryLocalDataSource>(),
       ),
     )
+    ..registerLazySingleton<VaultSyncRepository>(
+      () =>
+          VaultSyncRepositoryImpl(provider: serviceLocator<DatabaseProvider>()),
+    )
     // usecases
     ..registerLazySingleton(
       () => CreateVault(serviceLocator<VaultRepository>()),
@@ -48,6 +48,9 @@ void _initVault() {
     )
     ..registerLazySingleton(() => GetVaults(serviceLocator<VaultRepository>()))
     ..registerLazySingleton(() => OpenVault(serviceLocator<VaultRepository>()))
+    ..registerLazySingleton(
+      () => SyncVaultUseCase(repository: serviceLocator<VaultSyncRepository>()),
+    )
     // bloc
     ..registerFactory(
       () => VaultBloc(
@@ -62,6 +65,9 @@ void _initVault() {
 
 void _initCore() {
   serviceLocator.registerLazySingleton(
-    () => AppCubit(serviceLocator<DatabaseProvider>()),
+    () => AppCubit(
+      serviceLocator<DatabaseProvider>(),
+      serviceLocator<SyncVaultUseCase>(),
+    ),
   );
 }

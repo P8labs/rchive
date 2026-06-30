@@ -1,12 +1,14 @@
 import 'package:rchive/core/comman/entities/app_config.dart';
 import 'package:rchive/core/comman/entities/vault.dart';
 import 'package:rchive/core/database/app_database.dart';
-import 'package:rchive/core/database/vault_database.dart';
 import 'package:rchive/features/vault/data/models/app_vault_model.dart';
+import 'package:rchive/features/vault/data/storage/saf/saf_storage.dart';
+import 'package:rchive/features/vault/data/storage/vault_storage.dart';
 
 abstract interface class DatabaseProvider {
   AppDatabase get appDatabase;
-  VaultDatabase? get vaultDatabase;
+
+  VaultStorage? get currentStorage;
   Vault? get currentVault;
 
   AppConfig get appConfig;
@@ -26,13 +28,13 @@ class DatabaseProviderImpl implements DatabaseProvider {
   final AppDatabase appDatabase;
 
   AppConfig _appConfig = AppConfig.initial();
-  VaultDatabase? _vaultDatabase;
   Vault? _currentVault;
+  VaultStorage? _currentStorage;
 
   DatabaseProviderImpl({required this.appDatabase});
 
   @override
-  VaultDatabase? get vaultDatabase => _vaultDatabase;
+  VaultStorage? get currentStorage => _currentStorage;
 
   @override
   AppConfig get appConfig => _appConfig;
@@ -42,18 +44,18 @@ class DatabaseProviderImpl implements DatabaseProvider {
 
   @override
   Future<void> openVault(Vault vault) async {
-    if (_vaultDatabase != null) {
-      await _vaultDatabase!.close();
-      _currentVault = vault;
-    }
+    _currentVault = vault;
 
-    _vaultDatabase = VaultDatabase(vaultPath: vault.location);
+    _currentStorage = switch (vault.storageType) {
+      VaultStorageType.saf => SafStorage(treeUri: vault.location),
+      // TODO: Handle this case.
+      VaultStorageType.filesystem => throw UnimplementedError(),
+    };
   }
 
   @override
   Future<void> closeVault() async {
-    await _vaultDatabase?.close();
-    _vaultDatabase = null;
+    _currentStorage = null;
     _currentVault = null;
   }
 
@@ -95,8 +97,6 @@ class DatabaseProviderImpl implements DatabaseProvider {
 
   @override
   Future<AppConfig> syncAppConfig(AppConfig config, {bool init = false}) async {
-    print("APP CONF BEFORE UPDATE: $config");
-
     if (init) {
       final exists = await (appDatabase.select(
         appDatabase.appConfigTable,
@@ -118,8 +118,6 @@ class DatabaseProviderImpl implements DatabaseProvider {
     )..where((t) => t.id.equals(config.id))).getSingle();
 
     _appConfig = AppConfig.fromDrift(row);
-
-    print("APP CONF AFTER UPDATE: $_appConfig");
 
     return _appConfig;
   }

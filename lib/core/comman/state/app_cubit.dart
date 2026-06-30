@@ -3,13 +3,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rchive/core/comman/entities/app_config.dart';
 import 'package:rchive/core/comman/entities/vault.dart';
 import 'package:rchive/core/database/database_provider.dart';
+import 'package:rchive/core/usecase.dart';
+import 'package:rchive/features/vault/domain/usecases/sync_vault.dart';
 
 part 'app_state.dart';
 
 class AppCubit extends Cubit<AppState> {
   final DatabaseProvider _databaseProvider;
-
-  AppCubit(this._databaseProvider) : super(const AppInitializing());
+  final SyncVaultUseCase _syncVault;
+  AppCubit(this._databaseProvider, this._syncVault)
+    : super(const AppInitializing());
 
   Future<void> initialize() async {
     try {
@@ -32,6 +35,8 @@ class AppCubit extends Cubit<AppState> {
   Future<void> openVault(Vault vault) async {
     try {
       await _databaseProvider.openVault(vault);
+      final sync = await _syncVault(NoParams());
+      sync.fold((failure) => throw Exception(failure.message), (_) {});
       await _databaseProvider.syncAppConfig(
         _databaseProvider.appConfig.copyWith(defaultVaultId: vault.id),
       );

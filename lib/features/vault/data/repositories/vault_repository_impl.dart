@@ -26,7 +26,6 @@ class VaultRepositoryImpl with RepositoryMixin implements VaultRepository {
   }) async {
     return guard(() async {
       final vault = await _filesystem.create(name: name, treeUri: parentPath);
-
       await _registry.register(vault);
       return vault;
     });

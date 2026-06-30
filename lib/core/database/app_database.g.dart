@@ -695,11 +695,603 @@ class AppConfigTableCompanion extends UpdateCompanion<AppConfigTableData> {
   }
 }
 
+class $VaultFileTableTable extends VaultFileTable
+    with TableInfo<$VaultFileTableTable, VaultFileTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $VaultFileTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _vaultIdMeta = const VerificationMeta(
+    'vaultId',
+  );
+  @override
+  late final GeneratedColumn<String> vaultId = GeneratedColumn<String>(
+    'vault_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _pathMeta = const VerificationMeta('path');
+  @override
+  late final GeneratedColumn<String> path = GeneratedColumn<String>(
+    'path',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<VaultEntryType, String> type =
+      GeneratedColumn<String>(
+        'type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<VaultEntryType>($VaultFileTableTable.$convertertype);
+  @override
+  late final GeneratedColumnWithTypeConverter<VaultFileCategory, String>
+  category = GeneratedColumn<String>(
+    'category',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  ).withConverter<VaultFileCategory>($VaultFileTableTable.$convertercategory);
+  static const VerificationMeta _sizeMeta = const VerificationMeta('size');
+  @override
+  late final GeneratedColumn<int> size = GeneratedColumn<int>(
+    'size',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lastModifiedMeta = const VerificationMeta(
+    'lastModified',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastModified = GeneratedColumn<DateTime>(
+    'last_modified',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _checksumMeta = const VerificationMeta(
+    'checksum',
+  );
+  @override
+  late final GeneratedColumn<String> checksum = GeneratedColumn<String>(
+    'checksum',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _indexedAtMeta = const VerificationMeta(
+    'indexedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> indexedAt = GeneratedColumn<DateTime>(
+    'indexed_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    vaultId,
+    path,
+    type,
+    category,
+    size,
+    lastModified,
+    checksum,
+    indexedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'vault_file_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<VaultFileTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('vault_id')) {
+      context.handle(
+        _vaultIdMeta,
+        vaultId.isAcceptableOrUnknown(data['vault_id']!, _vaultIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_vaultIdMeta);
+    }
+    if (data.containsKey('path')) {
+      context.handle(
+        _pathMeta,
+        path.isAcceptableOrUnknown(data['path']!, _pathMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_pathMeta);
+    }
+    if (data.containsKey('size')) {
+      context.handle(
+        _sizeMeta,
+        size.isAcceptableOrUnknown(data['size']!, _sizeMeta),
+      );
+    }
+    if (data.containsKey('last_modified')) {
+      context.handle(
+        _lastModifiedMeta,
+        lastModified.isAcceptableOrUnknown(
+          data['last_modified']!,
+          _lastModifiedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('checksum')) {
+      context.handle(
+        _checksumMeta,
+        checksum.isAcceptableOrUnknown(data['checksum']!, _checksumMeta),
+      );
+    }
+    if (data.containsKey('indexed_at')) {
+      context.handle(
+        _indexedAtMeta,
+        indexedAt.isAcceptableOrUnknown(data['indexed_at']!, _indexedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_indexedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {vaultId, path},
+  ];
+  @override
+  VaultFileTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return VaultFileTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      vaultId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}vault_id'],
+      )!,
+      path: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}path'],
+      )!,
+      type: $VaultFileTableTable.$convertertype.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}type'],
+        )!,
+      ),
+      category: $VaultFileTableTable.$convertercategory.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}category'],
+        )!,
+      ),
+      size: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}size'],
+      ),
+      lastModified: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_modified'],
+      ),
+      checksum: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}checksum'],
+      ),
+      indexedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}indexed_at'],
+      )!,
+    );
+  }
+
+  @override
+  $VaultFileTableTable createAlias(String alias) {
+    return $VaultFileTableTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<VaultEntryType, String, String> $convertertype =
+      const EnumNameConverter<VaultEntryType>(VaultEntryType.values);
+  static JsonTypeConverter2<VaultFileCategory, String, String>
+  $convertercategory = const EnumNameConverter<VaultFileCategory>(
+    VaultFileCategory.values,
+  );
+}
+
+class VaultFileTableData extends DataClass
+    implements Insertable<VaultFileTableData> {
+  final String id;
+
+  /// Foreign key to VaultTable.id
+  final String vaultId;
+
+  /// Relative path from vault root.
+  /// Example:
+  /// notes/daily.md
+  /// attachments/logo.png
+  final String path;
+
+  /// File or directory.
+  final VaultEntryType type;
+
+  /// note / attachment / trash / metadata
+  final VaultFileCategory category;
+  final int? size;
+  final DateTime? lastModified;
+
+  /// SHA-256 or MD5
+  final String? checksum;
+  final DateTime indexedAt;
+  const VaultFileTableData({
+    required this.id,
+    required this.vaultId,
+    required this.path,
+    required this.type,
+    required this.category,
+    this.size,
+    this.lastModified,
+    this.checksum,
+    required this.indexedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['vault_id'] = Variable<String>(vaultId);
+    map['path'] = Variable<String>(path);
+    {
+      map['type'] = Variable<String>(
+        $VaultFileTableTable.$convertertype.toSql(type),
+      );
+    }
+    {
+      map['category'] = Variable<String>(
+        $VaultFileTableTable.$convertercategory.toSql(category),
+      );
+    }
+    if (!nullToAbsent || size != null) {
+      map['size'] = Variable<int>(size);
+    }
+    if (!nullToAbsent || lastModified != null) {
+      map['last_modified'] = Variable<DateTime>(lastModified);
+    }
+    if (!nullToAbsent || checksum != null) {
+      map['checksum'] = Variable<String>(checksum);
+    }
+    map['indexed_at'] = Variable<DateTime>(indexedAt);
+    return map;
+  }
+
+  VaultFileTableCompanion toCompanion(bool nullToAbsent) {
+    return VaultFileTableCompanion(
+      id: Value(id),
+      vaultId: Value(vaultId),
+      path: Value(path),
+      type: Value(type),
+      category: Value(category),
+      size: size == null && nullToAbsent ? const Value.absent() : Value(size),
+      lastModified: lastModified == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastModified),
+      checksum: checksum == null && nullToAbsent
+          ? const Value.absent()
+          : Value(checksum),
+      indexedAt: Value(indexedAt),
+    );
+  }
+
+  factory VaultFileTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return VaultFileTableData(
+      id: serializer.fromJson<String>(json['id']),
+      vaultId: serializer.fromJson<String>(json['vaultId']),
+      path: serializer.fromJson<String>(json['path']),
+      type: $VaultFileTableTable.$convertertype.fromJson(
+        serializer.fromJson<String>(json['type']),
+      ),
+      category: $VaultFileTableTable.$convertercategory.fromJson(
+        serializer.fromJson<String>(json['category']),
+      ),
+      size: serializer.fromJson<int?>(json['size']),
+      lastModified: serializer.fromJson<DateTime?>(json['lastModified']),
+      checksum: serializer.fromJson<String?>(json['checksum']),
+      indexedAt: serializer.fromJson<DateTime>(json['indexedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'vaultId': serializer.toJson<String>(vaultId),
+      'path': serializer.toJson<String>(path),
+      'type': serializer.toJson<String>(
+        $VaultFileTableTable.$convertertype.toJson(type),
+      ),
+      'category': serializer.toJson<String>(
+        $VaultFileTableTable.$convertercategory.toJson(category),
+      ),
+      'size': serializer.toJson<int?>(size),
+      'lastModified': serializer.toJson<DateTime?>(lastModified),
+      'checksum': serializer.toJson<String?>(checksum),
+      'indexedAt': serializer.toJson<DateTime>(indexedAt),
+    };
+  }
+
+  VaultFileTableData copyWith({
+    String? id,
+    String? vaultId,
+    String? path,
+    VaultEntryType? type,
+    VaultFileCategory? category,
+    Value<int?> size = const Value.absent(),
+    Value<DateTime?> lastModified = const Value.absent(),
+    Value<String?> checksum = const Value.absent(),
+    DateTime? indexedAt,
+  }) => VaultFileTableData(
+    id: id ?? this.id,
+    vaultId: vaultId ?? this.vaultId,
+    path: path ?? this.path,
+    type: type ?? this.type,
+    category: category ?? this.category,
+    size: size.present ? size.value : this.size,
+    lastModified: lastModified.present ? lastModified.value : this.lastModified,
+    checksum: checksum.present ? checksum.value : this.checksum,
+    indexedAt: indexedAt ?? this.indexedAt,
+  );
+  VaultFileTableData copyWithCompanion(VaultFileTableCompanion data) {
+    return VaultFileTableData(
+      id: data.id.present ? data.id.value : this.id,
+      vaultId: data.vaultId.present ? data.vaultId.value : this.vaultId,
+      path: data.path.present ? data.path.value : this.path,
+      type: data.type.present ? data.type.value : this.type,
+      category: data.category.present ? data.category.value : this.category,
+      size: data.size.present ? data.size.value : this.size,
+      lastModified: data.lastModified.present
+          ? data.lastModified.value
+          : this.lastModified,
+      checksum: data.checksum.present ? data.checksum.value : this.checksum,
+      indexedAt: data.indexedAt.present ? data.indexedAt.value : this.indexedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VaultFileTableData(')
+          ..write('id: $id, ')
+          ..write('vaultId: $vaultId, ')
+          ..write('path: $path, ')
+          ..write('type: $type, ')
+          ..write('category: $category, ')
+          ..write('size: $size, ')
+          ..write('lastModified: $lastModified, ')
+          ..write('checksum: $checksum, ')
+          ..write('indexedAt: $indexedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    vaultId,
+    path,
+    type,
+    category,
+    size,
+    lastModified,
+    checksum,
+    indexedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is VaultFileTableData &&
+          other.id == this.id &&
+          other.vaultId == this.vaultId &&
+          other.path == this.path &&
+          other.type == this.type &&
+          other.category == this.category &&
+          other.size == this.size &&
+          other.lastModified == this.lastModified &&
+          other.checksum == this.checksum &&
+          other.indexedAt == this.indexedAt);
+}
+
+class VaultFileTableCompanion extends UpdateCompanion<VaultFileTableData> {
+  final Value<String> id;
+  final Value<String> vaultId;
+  final Value<String> path;
+  final Value<VaultEntryType> type;
+  final Value<VaultFileCategory> category;
+  final Value<int?> size;
+  final Value<DateTime?> lastModified;
+  final Value<String?> checksum;
+  final Value<DateTime> indexedAt;
+  final Value<int> rowid;
+  const VaultFileTableCompanion({
+    this.id = const Value.absent(),
+    this.vaultId = const Value.absent(),
+    this.path = const Value.absent(),
+    this.type = const Value.absent(),
+    this.category = const Value.absent(),
+    this.size = const Value.absent(),
+    this.lastModified = const Value.absent(),
+    this.checksum = const Value.absent(),
+    this.indexedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  VaultFileTableCompanion.insert({
+    required String id,
+    required String vaultId,
+    required String path,
+    required VaultEntryType type,
+    required VaultFileCategory category,
+    this.size = const Value.absent(),
+    this.lastModified = const Value.absent(),
+    this.checksum = const Value.absent(),
+    required DateTime indexedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       vaultId = Value(vaultId),
+       path = Value(path),
+       type = Value(type),
+       category = Value(category),
+       indexedAt = Value(indexedAt);
+  static Insertable<VaultFileTableData> custom({
+    Expression<String>? id,
+    Expression<String>? vaultId,
+    Expression<String>? path,
+    Expression<String>? type,
+    Expression<String>? category,
+    Expression<int>? size,
+    Expression<DateTime>? lastModified,
+    Expression<String>? checksum,
+    Expression<DateTime>? indexedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (vaultId != null) 'vault_id': vaultId,
+      if (path != null) 'path': path,
+      if (type != null) 'type': type,
+      if (category != null) 'category': category,
+      if (size != null) 'size': size,
+      if (lastModified != null) 'last_modified': lastModified,
+      if (checksum != null) 'checksum': checksum,
+      if (indexedAt != null) 'indexed_at': indexedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  VaultFileTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? vaultId,
+    Value<String>? path,
+    Value<VaultEntryType>? type,
+    Value<VaultFileCategory>? category,
+    Value<int?>? size,
+    Value<DateTime?>? lastModified,
+    Value<String?>? checksum,
+    Value<DateTime>? indexedAt,
+    Value<int>? rowid,
+  }) {
+    return VaultFileTableCompanion(
+      id: id ?? this.id,
+      vaultId: vaultId ?? this.vaultId,
+      path: path ?? this.path,
+      type: type ?? this.type,
+      category: category ?? this.category,
+      size: size ?? this.size,
+      lastModified: lastModified ?? this.lastModified,
+      checksum: checksum ?? this.checksum,
+      indexedAt: indexedAt ?? this.indexedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (vaultId.present) {
+      map['vault_id'] = Variable<String>(vaultId.value);
+    }
+    if (path.present) {
+      map['path'] = Variable<String>(path.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(
+        $VaultFileTableTable.$convertertype.toSql(type.value),
+      );
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(
+        $VaultFileTableTable.$convertercategory.toSql(category.value),
+      );
+    }
+    if (size.present) {
+      map['size'] = Variable<int>(size.value);
+    }
+    if (lastModified.present) {
+      map['last_modified'] = Variable<DateTime>(lastModified.value);
+    }
+    if (checksum.present) {
+      map['checksum'] = Variable<String>(checksum.value);
+    }
+    if (indexedAt.present) {
+      map['indexed_at'] = Variable<DateTime>(indexedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VaultFileTableCompanion(')
+          ..write('id: $id, ')
+          ..write('vaultId: $vaultId, ')
+          ..write('path: $path, ')
+          ..write('type: $type, ')
+          ..write('category: $category, ')
+          ..write('size: $size, ')
+          ..write('lastModified: $lastModified, ')
+          ..write('checksum: $checksum, ')
+          ..write('indexedAt: $indexedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $VaultTableTable vaultTable = $VaultTableTable(this);
   late final $AppConfigTableTable appConfigTable = $AppConfigTableTable(this);
+  late final $VaultFileTableTable vaultFileTable = $VaultFileTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -707,6 +1299,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     vaultTable,
     appConfigTable,
+    vaultFileTable,
   ];
 }
 
@@ -1097,6 +1690,292 @@ typedef $$AppConfigTableTableProcessedTableManager =
       AppConfigTableData,
       PrefetchHooks Function()
     >;
+typedef $$VaultFileTableTableCreateCompanionBuilder =
+    VaultFileTableCompanion Function({
+      required String id,
+      required String vaultId,
+      required String path,
+      required VaultEntryType type,
+      required VaultFileCategory category,
+      Value<int?> size,
+      Value<DateTime?> lastModified,
+      Value<String?> checksum,
+      required DateTime indexedAt,
+      Value<int> rowid,
+    });
+typedef $$VaultFileTableTableUpdateCompanionBuilder =
+    VaultFileTableCompanion Function({
+      Value<String> id,
+      Value<String> vaultId,
+      Value<String> path,
+      Value<VaultEntryType> type,
+      Value<VaultFileCategory> category,
+      Value<int?> size,
+      Value<DateTime?> lastModified,
+      Value<String?> checksum,
+      Value<DateTime> indexedAt,
+      Value<int> rowid,
+    });
+
+class $$VaultFileTableTableFilterComposer
+    extends Composer<_$AppDatabase, $VaultFileTableTable> {
+  $$VaultFileTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get vaultId => $composableBuilder(
+    column: $table.vaultId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get path => $composableBuilder(
+    column: $table.path,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<VaultEntryType, VaultEntryType, String>
+  get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<VaultFileCategory, VaultFileCategory, String>
+  get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<int> get size => $composableBuilder(
+    column: $table.size,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastModified => $composableBuilder(
+    column: $table.lastModified,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get checksum => $composableBuilder(
+    column: $table.checksum,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get indexedAt => $composableBuilder(
+    column: $table.indexedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$VaultFileTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $VaultFileTableTable> {
+  $$VaultFileTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get vaultId => $composableBuilder(
+    column: $table.vaultId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get path => $composableBuilder(
+    column: $table.path,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get size => $composableBuilder(
+    column: $table.size,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastModified => $composableBuilder(
+    column: $table.lastModified,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get checksum => $composableBuilder(
+    column: $table.checksum,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get indexedAt => $composableBuilder(
+    column: $table.indexedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$VaultFileTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $VaultFileTableTable> {
+  $$VaultFileTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get vaultId =>
+      $composableBuilder(column: $table.vaultId, builder: (column) => column);
+
+  GeneratedColumn<String> get path =>
+      $composableBuilder(column: $table.path, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<VaultEntryType, String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<VaultFileCategory, String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<int> get size =>
+      $composableBuilder(column: $table.size, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastModified => $composableBuilder(
+    column: $table.lastModified,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get checksum =>
+      $composableBuilder(column: $table.checksum, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get indexedAt =>
+      $composableBuilder(column: $table.indexedAt, builder: (column) => column);
+}
+
+class $$VaultFileTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $VaultFileTableTable,
+          VaultFileTableData,
+          $$VaultFileTableTableFilterComposer,
+          $$VaultFileTableTableOrderingComposer,
+          $$VaultFileTableTableAnnotationComposer,
+          $$VaultFileTableTableCreateCompanionBuilder,
+          $$VaultFileTableTableUpdateCompanionBuilder,
+          (
+            VaultFileTableData,
+            BaseReferences<
+              _$AppDatabase,
+              $VaultFileTableTable,
+              VaultFileTableData
+            >,
+          ),
+          VaultFileTableData,
+          PrefetchHooks Function()
+        > {
+  $$VaultFileTableTableTableManager(
+    _$AppDatabase db,
+    $VaultFileTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$VaultFileTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$VaultFileTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$VaultFileTableTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> vaultId = const Value.absent(),
+                Value<String> path = const Value.absent(),
+                Value<VaultEntryType> type = const Value.absent(),
+                Value<VaultFileCategory> category = const Value.absent(),
+                Value<int?> size = const Value.absent(),
+                Value<DateTime?> lastModified = const Value.absent(),
+                Value<String?> checksum = const Value.absent(),
+                Value<DateTime> indexedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => VaultFileTableCompanion(
+                id: id,
+                vaultId: vaultId,
+                path: path,
+                type: type,
+                category: category,
+                size: size,
+                lastModified: lastModified,
+                checksum: checksum,
+                indexedAt: indexedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String vaultId,
+                required String path,
+                required VaultEntryType type,
+                required VaultFileCategory category,
+                Value<int?> size = const Value.absent(),
+                Value<DateTime?> lastModified = const Value.absent(),
+                Value<String?> checksum = const Value.absent(),
+                required DateTime indexedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => VaultFileTableCompanion.insert(
+                id: id,
+                vaultId: vaultId,
+                path: path,
+                type: type,
+                category: category,
+                size: size,
+                lastModified: lastModified,
+                checksum: checksum,
+                indexedAt: indexedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$VaultFileTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $VaultFileTableTable,
+      VaultFileTableData,
+      $$VaultFileTableTableFilterComposer,
+      $$VaultFileTableTableOrderingComposer,
+      $$VaultFileTableTableAnnotationComposer,
+      $$VaultFileTableTableCreateCompanionBuilder,
+      $$VaultFileTableTableUpdateCompanionBuilder,
+      (
+        VaultFileTableData,
+        BaseReferences<_$AppDatabase, $VaultFileTableTable, VaultFileTableData>,
+      ),
+      VaultFileTableData,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -1105,4 +1984,6 @@ class $AppDatabaseManager {
       $$VaultTableTableTableManager(_db, _db.vaultTable);
   $$AppConfigTableTableTableManager get appConfigTable =>
       $$AppConfigTableTableTableManager(_db, _db.appConfigTable);
+  $$VaultFileTableTableTableManager get vaultFileTable =>
+      $$VaultFileTableTableTableManager(_db, _db.vaultFileTable);
 }

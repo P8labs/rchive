@@ -45,21 +45,21 @@ class AppTheme {
       ),
     ),
 
-    inputDecorationTheme: InputDecorationTheme(
-      filled: true,
-      fillColor: AppPallete.surface,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppPallete.border),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.white),
-      ),
-    ),
+    // inputDecorationTheme: InputDecorationTheme(
+    //   filled: true,
+    //   fillColor: AppPallete.surface,
+    //   border: OutlineInputBorder(
+    //     borderRadius: BorderRadius.circular(12),
+    //     borderSide: BorderSide.none,
+    //   ),
+    //   enabledBorder: OutlineInputBorder(
+    //     borderRadius: BorderRadius.circular(12),
+    //     borderSide: const BorderSide(color: AppPallete.border),
+    //   ),
+    //   focusedBorder: OutlineInputBorder(
+    //     borderRadius: BorderRadius.circular(12),
+    //     borderSide: const BorderSide(color: Colors.white),
+    //   ),
+    // ),
   );
 }
